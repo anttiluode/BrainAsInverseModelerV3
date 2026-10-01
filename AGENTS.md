@@ -2,51 +2,63 @@
 
 ## Current authorization
 
-On 1 October 2026 the user requested a new research brief and Superpowers handoff, and explicitly said **do not start implementation yet**.
+Gate A is complete, merged to `main`, and frozen as a negative result.
 
-The repository is a documentation-only planning checkpoint. Reading the brief is not permission to execute it. Do not add simulation code, test code, dependencies, CI workflows, browser assets, or V3 numerical results under this authorization.
+On 1 October 2026 the user approved the **Gate C0 state-bearing spike design** in chat. That approval authorizes writing and reviewing the design specification only. Numerical implementation is **not yet authorized**.
 
-The user's latest explicit instructions take precedence. A later request can authorize a particular gate; record its scope in `docs/progress.md`. Earlier approvals from V1 or V2 do not authorize V3 implementation.
+The current written design is:
+
+`docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
+
+Do not add Gate C0 simulation code, tests, dependencies, receipts, CI changes, or numerical results until the user reviews that written spec and explicitly approves proceeding to the implementation-plan stage. After written-spec approval, use the `writing-plans` skill before implementation.
+
+The user's latest explicit instructions always take precedence.
 
 ## Read order
 
 1. `README.md`
-2. `docs/superpowers/specs/2026-10-01-emitted-state-design.md`
-3. `docs/progress.md`
-
-The research brief is a proposed design, not an executable implementation plan. Its numerical protocol has not been run in V3. V2 results must remain attributed to the pinned V2 source.
+2. `docs/findings.md`
+3. `docs/superpowers/specs/2026-10-01-emitted-state-design.md`
+4. `docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
+5. `docs/progress.md`
 
 ## Superpowers workflow
 
 Use installed Superpowers skills by name; do not assume a machine-specific skill path.
 
-- **brainstorming:** refine only the gate the user selects. The brief already records the motivation, alternatives, constraints, and candidate protocol. Resolve actual gaps; do not restart the whole conversation.
-- **writing-plans:** when planning is requested, prepare a short, reviewable plan for that gate with exact interfaces, tests, commands, and completion criteria. Do not silently turn a planning request into execution.
-- **using-git-worktrees:** isolate code changes when implementation is authorized.
-- **test-driven-development:** verify physics, causality, data separation, and readout behavior with meaningful tests.
-- **systematic-debugging:** investigate a failed control before proposing a fix.
-- **verification-before-completion:** claim success only after fresh checks, a recorded receipt, and read-back of the published checkpoint.
+- **brainstorming:** refine only the selected gate and respect completed design stages.
+- **writing-plans:** after written-spec approval, prepare an exact implementation plan with interfaces, tests, commands, and stopping criteria.
+- **using-git-worktrees:** isolate implementation work when implementation is authorized.
+- **test-driven-development:** verify physics, causality, event identity, data separation, waveform extraction, shuffle controls, and readout behavior.
+- **systematic-debugging:** investigate failed controls before changing the model.
+- **verification-before-completion:** claim completion only after fresh checks, a frozen receipt, and read-back of the remote checkpoint.
 
-Respect the authorized scope and the current user's decisions. Do not invent repeated approval steps for routine choices already covered by their request. Do not launch parallel agents merely because they are available. If a skill is unavailable, say so and preserve the same explicit scope and verification requirements.
+Do not reinterpret design approval as permission to skip the written-spec review or implementation-plan checkpoint.
 
 ## Scientific boundaries
 
-- Gate A receiver features contain emitted soma voltage history only.
-- Direct-input and internal-state arms are named comparison controls, not privileged inputs to that receiver.
-- Fit using later observed input values as targets. Hidden Lorenz coordinates and clean simulator truth remain evaluation-only.
-- Declare the delayed teaching signal: observation-trained prediction is not an autonomous biological learning rule.
-- Keep trajectory splits, feature width, decoder class, normalization, and forecast horizons explicit.
-- Never present an external decoder's success as proof that the passive cable itself learned an inverse.
-- Never claim dendritic superiority from beating the present-only baseline; compare ordinary delays.
-- Account for pulse-timing assumptions, noise, calibration, and indistinguishable histories.
-- A negative outcome is a valid result. Do not tune against held-out answers to rescue it.
+### Gate A
 
-## Checkpoint discipline for later authorized work
+- Gate A receiver features contain emitted soma-voltage history only.
+- Direct-input and internal-state arms are comparison controls.
+- Gate A's failed criterion is frozen. Do not retune its constants or call later gates a repair of Gate A.
 
-Work on one gate at a time. Publish each coherent, verified stage early rather than waiting for a finished website.
+### Gate C0
 
-Before any handoff or interruption, update `docs/progress.md` with: the remote commit/branch, completed work, commands actually run, observed results, unresolved issues, and one precise next action. Label local-only work as local-only; never imply it survived remotely.
+- The question is whether an active spike waveform carries predictive information beyond the timing of the **same spikes**.
+- The passive cable stays unchanged and feeds a one-way active emitter.
+- The main comparison is timing-only versus timing + real waveform, with a dimension-matched shuffled-waveform control and a timing-residualized waveform control.
+- Hidden Lorenz coordinates never enter forecasting fits.
+- A passing external reader is an information-access result, not a biological learning rule.
+- A negative outcome is valid. Do not tune the active-emitter mapping, waveform feature set, event rule, or held-out criterion after seeing test results.
+- Do not introduce synaptic release, a postsynaptic neuron, active dendrites, or consciousness/field claims into Gate C0.
 
-A checkpoint must let a fresh session resume without the previous chat. User corrections, pauses, or cancellations override the current task list immediately. Do not continue implementation in the background after a pause.
+## Checkpoint discipline
 
-**Present next action: wait for a new user instruction. No implementation is authorized.**
+Work on one gate at a time. Publish each coherent verified stage early.
+
+Before any handoff or interruption, update `docs/progress.md` with the remote branch/commit, completed work, commands actually run, observed results, unresolved issues, and one precise next action. Label local-only work as local-only.
+
+A checkpoint must let a fresh session resume without the previous chat. User corrections, pauses, and cancellations override all current plans immediately.
+
+**Present next action: user reviews the Gate C0 written spec. No Gate C0 implementation is authorized yet.**
