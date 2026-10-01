@@ -31,7 +31,8 @@ Read the full interpretation in [`docs/findings.md`](docs/findings.md) and the m
 ```bash
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
-OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py
+OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py --output /tmp/gate_a_receipt.json
+python scripts/compare_receipts.py results/gate_a_receipt.json /tmp/gate_a_receipt.json
 ```
 
 The published protocol uses training trajectories 10–15, held-out trajectories 100–103, forecast horizons 1/5/20, and input-noise levels 0/0.02. All six readers have width 19 and use the same degree-two ridge readout.
