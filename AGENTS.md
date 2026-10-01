@@ -1,39 +1,37 @@
 # Agent instructions — V3 and Superpowers
 
-## Current authorization
+## Current authorization and frozen results
 
 Gate A is complete, merged to `main`, and frozen as a negative result.
 
-On 1 October 2026 the user approved the **Gate C0 state-bearing spike design** in chat. That approval authorizes writing and reviewing the design specification only. Numerical implementation is **not yet authorized**.
+Gate C0 has been explicitly designed, planned, implemented, and measured on `feature/gate-c0-waveform-state-spec`. Its full result is frozen: C0-A and C0-B passed under the predeclared primary condition, and the independent-label chance control passed. Do not alter the emitter mapping, waveform features, event selection, residualization, reader settings, or evidence thresholds to improve that result.
 
-The current written design is:
+The current Gate C0 design and plan are:
 
-`docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
+- `docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
+- `docs/superpowers/plans/2026-10-01-gate-c0-waveform-state.md`
 
-Do not add Gate C0 simulation code, tests, dependencies, receipts, CI changes, or numerical results until the user reviews that written spec and explicitly approves proceeding to the implementation-plan stage. After written-spec approval, use the `writing-plans` skill before implementation.
-
-The user's latest explicit instructions always take precedence.
+The current authorization is to finish Gate C0 reproducibility/verification only. Do not start Gate B, a synapse, a postsynaptic neuron, or full Gate C without a new explicit user request.
 
 ## Read order
 
 1. `README.md`
 2. `docs/findings.md`
-3. `docs/superpowers/specs/2026-10-01-emitted-state-design.md`
-4. `docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
-5. `docs/progress.md`
+3. `docs/gate_c0_findings.md`
+4. `results/gate_a_receipt.json`
+5. `results/gate_c0_receipt.json`
+6. Gate C0 spec and implementation plan above
+7. `docs/progress.md`
 
 ## Superpowers workflow
 
-Use installed Superpowers skills by name; do not assume a machine-specific skill path.
+Use installed Superpowers skills by name.
 
-- **brainstorming:** refine only the selected gate and respect completed design stages.
-- **writing-plans:** after written-spec approval, prepare an exact implementation plan with interfaces, tests, commands, and stopping criteria.
-- **using-git-worktrees:** isolate implementation work when implementation is authorized.
-- **test-driven-development:** verify physics, causality, event identity, data separation, waveform extraction, shuffle controls, and readout behavior.
-- **systematic-debugging:** investigate failed controls before changing the model.
-- **verification-before-completion:** claim completion only after fresh checks, a frozen receipt, and read-back of the remote checkpoint.
-
-Do not reinterpret design approval as permission to skip the written-spec review or implementation-plan checkpoint.
+- **systematic-debugging:** investigate any failed control or reproduction before proposing a change.
+- **test-driven-development:** any implementation fix requires a failing test first.
+- **verification-before-completion:** claim Gate C0 complete only after the unit suite, full frozen rerun, scientific receipt comparison, and exact-head CI verification pass.
+- **requesting-code-review:** perform the whole-branch review before integration; if no subagent tool is available, document that the final review is a self-review.
+- **finishing-a-development-branch:** after verification, present the integration decision rather than silently merging.
 
 ## Scientific boundaries
 
@@ -41,24 +39,22 @@ Do not reinterpret design approval as permission to skip the written-spec review
 
 - Gate A receiver features contain emitted soma-voltage history only.
 - Direct-input and internal-state arms are comparison controls.
-- Gate A's failed criterion is frozen. Do not retune its constants or call later gates a repair of Gate A.
+- Gate A's failed criterion is frozen. Later positive gates do not retroactively make it pass.
 
 ### Gate C0
 
-- The question is whether an active spike waveform carries predictive information beyond the timing of the **same spikes**.
+- The question is whether an active spike waveform carries predictive information beyond timing of the **same spikes**.
 - The passive cable stays unchanged and feeds a one-way active emitter.
-- The main comparison is timing-only versus timing + real waveform, with a dimension-matched shuffled-waveform control and a timing-residualized waveform control.
+- Primary controls are timing-only, timing + real waveform, timing + shuffled waveform, and timing + timing-residualized waveform.
 - Hidden Lorenz coordinates never enter forecasting fits.
-- A passing external reader is an information-access result, not a biological learning rule.
-- A negative outcome is valid. Do not tune the active-emitter mapping, waveform feature set, event rule, or held-out criterion after seeing test results.
-- Do not introduce synaptic release, a postsynaptic neuron, active dendrites, or consciousness/field claims into Gate C0.
+- C0-A and C0-B passed on the frozen full protocol; raw input delays still performed better than the best waveform representation.
+- This is an information-access result in a synthetic mechanism, not evidence that biological neurons generally use waveform coding.
+- No synaptic release, postsynaptic receiver, biological learning rule, active dendrites, or consciousness/field claim is part of Gate C0.
 
 ## Checkpoint discipline
 
-Work on one gate at a time. Publish each coherent verified stage early.
+Before any interruption, update `docs/progress.md` with the remote branch/commit, commands actually run, observed result, unresolved issues, and one precise next action. Label any local-only work explicitly.
 
-Before any handoff or interruption, update `docs/progress.md` with the remote branch/commit, completed work, commands actually run, observed results, unresolved issues, and one precise next action. Label local-only work as local-only.
+A checkpoint must let a fresh session resume without the previous chat. User corrections, pauses, and cancellations override current plans immediately.
 
-A checkpoint must let a fresh session resume without the previous chat. User corrections, pauses, and cancellations override all current plans immediately.
-
-**Present next action: user reviews the Gate C0 written spec. No Gate C0 implementation is authorized yet.**
+**Present next action: finish Gate C0 receipt comparison and exact-head CI verification. Do not begin another biological mechanism automatically.**
