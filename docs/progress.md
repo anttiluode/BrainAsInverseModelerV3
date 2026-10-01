@@ -47,7 +47,7 @@ python scripts/run_gate_a.py --quick --output /tmp/gatea-quick.json
 OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py --output results/gate_a_receipt.json
 ```
 
-The full suite was rerun after the frozen receipt and documentation were written: **13/13 tests passed**.
+The full suite was rerun after the frozen receipt, documentation, and reproducibility comparator were written: **16/16 tests passed**. The comparator also confirmed the compact receipt matches the original verbose frozen receipt scientifically.
 
 ## Remote checkpoints
 
@@ -55,16 +55,18 @@ The full suite was rerun after the frozen receipt and documentation were written
 - Authorization checkpoint: `482f9965347c0b7b80f34b69e0a9bb22d374b1b2`
 - Pinned V2 core port: `1ed2ba34872051754ad9cb11bdcdf703c43a620d`
 - Causal Gate A protocol: `f0b93f24da5ee5b3fdcde2ff7407299822158bc0`
+- Frozen Gate A result/receipt: `12896155c637021d2b99740b542cf0308f7ce464`
+- Reproducibility workflow/comparator: `0b8e75d58c15306349c1966aaad53e56b0a0a89f`
 
-The result/receipt checkpoint has not yet been published remotely at the time this progress text is authored; use the next commit in branch history for that exact SHA.
+GitHub Actions run `36816787185` on `0b8e75d5` completed successfully under Python 3.12. It passed the unit suite, reran the full frozen experiment into `/tmp/gate_a_ci.json`, and matched the regenerated scientific payload against the committed receipt.
 
 ## Unresolved caveats
 
 - Gate A uses continuous soma voltage, not spikes or synaptic reception.
 - The output reader is an external supervised quadratic ridge model with delayed observational targets; no biological learning pathway is implemented.
 - Only one soma-history width/stride and one passive cable are tested. Changing them after seeing this result would be a new experiment, not a rescue of Gate A.
-- CI reproducibility is the next implementation task; it must rerun the frozen experiment without overwriting the committed receipt.
+- The first CI reproducibility run passed. Environment metadata is intentionally excluded from the scientific comparison; scientific floats are compared at `rtol=1e-9`, `atol=1e-10`.
 
 ## Precise next action
 
-Complete the remote reproducibility checkpoint (Task 4): add CI, rerun tests and the frozen scientific payload in a temporary path, compare it against the committed receipt, then read back the published checkpoint. Do not begin Gate B or C.
+Gate A is complete pending merge decision. Analyze the negative Gate A result and, only if explicitly requested, design Gate B as a separate experiment. Do not begin Gate B or C automatically.
