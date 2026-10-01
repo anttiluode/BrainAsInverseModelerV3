@@ -132,6 +132,29 @@ class GateC0ReceiptCompareTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn('event_identity_sha256', message)
 
+    def test_portable_mode_ignores_event_identity_digests(self):
+        changed = copy.deepcopy(self.compact)
+        changed['event_counts']['noise_0'][0][-1] = '0' * 64
+        changed['conditions']['noise_0']['horizons']['horizon_1'][0][2][0][3] = '1' * 64
+        ok, message = compare_scientific(self.wrapper, changed, portable=True)
+        self.assertTrue(ok, message)
+
+    def test_portable_mode_still_detects_scientific_changes(self):
+        changed = copy.deepcopy(self.compact)
+        changed['event_counts']['noise_0'][0][-1] = '0' * 64
+        changed['conditions']['noise_0']['horizons']['horizon_20'][1][0] += 1e-3
+        ok, message = compare_scientific(self.wrapper, changed, portable=True)
+        self.assertFalse(ok)
+        self.assertIn('timing_real_waveform', message)
+
+        changed = copy.deepcopy(self.compact)
+        changed['event_counts']['noise_0'][0][-1] = '0' * 64
+        source = next(iter(changed['source_sha256']))
+        changed['source_sha256'][source] = '0' * 64
+        ok, message = compare_scientific(self.wrapper, changed, portable=True)
+        self.assertFalse(ok)
+        self.assertIn('source_sha256', message)
+
     def test_changed_evidence_boolean_is_detected(self):
         changed = copy.deepcopy(self.compact)
         changed['primary_evidence']['c0_a']['passed'] = False
