@@ -71,7 +71,12 @@ def _derivative(state: np.ndarray, current: float, params: HHParams) -> np.ndarr
     return np.array([dv, dm, dh, dn], dtype=float)
 
 
-def simulate_hh_piecewise(current_by_interval: np.ndarray, interval_ms: float = 1.0, dt_ms: float = 0.025, params: HHParams = HHParams()) -> tuple[np.ndarray, np.ndarray]:
+def simulate_hh_piecewise(
+    current_by_interval: np.ndarray,
+    interval_ms: float = 1.0,
+    dt_ms: float = 0.025,
+    params: HHParams = HHParams(),
+) -> tuple[np.ndarray, np.ndarray]:
     current = np.asarray(current_by_interval, dtype=float)
     if current.ndim != 1 or not np.all(np.isfinite(current)):
         raise ValueError("current_by_interval must be a finite vector")
@@ -81,6 +86,7 @@ def simulate_hh_piecewise(current_by_interval: np.ndarray, interval_ms: float = 
     substeps = int(round(ratio))
     if substeps <= 0 or abs(ratio - substeps) > 1e-12:
         raise ValueError("interval_ms / dt_ms must be a positive integer")
+
     total_steps = current.size * substeps
     times = np.arange(total_steps + 1, dtype=float) * dt_ms
     voltage = np.empty(total_steps + 1, dtype=float)
@@ -137,6 +143,7 @@ def _features_for_event(t: np.ndarray, v: np.ndarray, onset: float) -> np.ndarra
     if baseline_grid.size == 0:
         return None
     baseline = float(np.mean(np.interp(baseline_grid, t, v)))
+
     peak_mask = (t >= onset - 1e-12) & (t <= onset + 2.0 + 1e-12)
     peak_idx = np.flatnonzero(peak_mask)
     if peak_idx.size == 0:
@@ -153,9 +160,11 @@ def _features_for_event(t: np.ndarray, v: np.ndarray, onset: float) -> np.ndarra
     if rising is None or falling is None or falling <= rising:
         return None
     width = falling - rising
+
     if t_peak - 0.1 < t[0] or t_peak + 0.1 > t[-1]:
         return None
     sharpness = v_peak - 0.5 * (_interp(t, v, t_peak - 0.1) + _interp(t, v, t_peak + 0.1))
+
     lo = t_peak + 0.5
     hi = t_peak + 2.0
     slope_mask = (t >= lo - 1e-12) & (t <= hi + 1e-12)
@@ -172,7 +181,12 @@ def _features_for_event(t: np.ndarray, v: np.ndarray, onset: float) -> np.ndarra
     return features if np.all(np.isfinite(features)) else None
 
 
-def extract_waveform_events(time_ms: np.ndarray, voltage_mv: np.ndarray, pre_ms: float = 1.0, post_ms: float = 4.0) -> EmissionResult:
+def extract_waveform_events(
+    time_ms: np.ndarray,
+    voltage_mv: np.ndarray,
+    pre_ms: float = 1.0,
+    post_ms: float = 4.0,
+) -> EmissionResult:
     t = np.asarray(time_ms, dtype=float)
     v = np.asarray(voltage_mv, dtype=float)
     if t.ndim != 1 or v.ndim != 1 or t.shape != v.shape or t.size < 2:
@@ -181,8 +195,11 @@ def extract_waveform_events(time_ms: np.ndarray, voltage_mv: np.ndarray, pre_ms:
         raise ValueError("trace must be finite with strictly increasing time")
     if pre_ms != 1.0 or post_ms != 4.0:
         raise ValueError("Gate C0 waveform window is frozen at [-1,+4] ms")
+
     crossing_indices = np.flatnonzero((v[:-1] < 0.0) & (v[1:] >= 0.0))
-    onset_times = np.array([_crossing_time(t[i], v[i], t[i + 1], v[i + 1], 0.0) for i in crossing_indices], dtype=float)
+    onset_times = np.array([
+        _crossing_time(t[i], v[i], t[i + 1], v[i + 1], 0.0) for i in crossing_indices
+    ], dtype=float)
     exclusions = {"boundary": 0, "overlap": 0, "undefined_feature": 0}
     events: list[WaveformEvent] = []
     for spike_index, onset in enumerate(onset_times):
