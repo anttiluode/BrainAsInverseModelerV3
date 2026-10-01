@@ -2,11 +2,9 @@
 
 ## Current state — 2026-10-01
 
-**Gate A is now authorized for implementation, but code execution has not started yet.**
+**Gate A has been implemented and measured on `feature/gate-a-output-prediction`. Gates B and C have not started.**
 
-The initial V3 checkpoint deliberately paused implementation. The user's later instruction on 1 October 2026 explicitly said to continue V3 as planned. That lifts the earlier pause for **Gate A only**. Gates B and C remain deferred and require separate scope decisions.
-
-Work is isolated on branch `feature/gate-a-output-prediction` from main commit `9b44b4b958c198c696c4d1627901d89c7dcfb40f`.
+The frozen full Gate A protocol was run once after the reduced-protocol tests passed. No scientific constants were tuned after viewing held-out results.
 
 ## Source and question
 
@@ -14,29 +12,59 @@ V2 source anchor: `795be2c7e8c4ba25112983fdc9ac2ad00ca232d0`.
 
 Question: can a receiver use emitted soma history to learn useful forecasts of the observed world, without hidden-state training labels or access to the sender's branch voltages?
 
-Gate A tests continuous soma output with a fixed degree-two predictive reader. Sensory-gap and spiking gates remain deferred.
+## Completed work
 
-## Work completed
+- Ported the pinned V2 passive cable, Lorenz generator, temporal feature functions, and quadratic readout with matching source hashes for `cable.py`, `world.py`, and `readout.py`.
+- Added the six frozen Gate A comparison arms with causal timing and equal width 19.
+- Added explicit timing, causality, data-separation, constant-signal, and degenerate-feature tests.
+- Added deterministic train/test trajectory generation, the two declared input-noise levels, horizons 1/5/20, and observation-only forecast training.
+- Added an isolated independent-Gaussian-label negative control.
+- Ran the full frozen experiment and wrote `results/gate_a_receipt.json`. The committed receipt uses a lossless compact schema that removes repeated JSON keys while retaining every full-precision arm/horizon/noise/trajectory metric.
+- Wrote `docs/findings.md` and updated README with the measured result.
 
-- Read and re-established the repository handoff from `AGENTS.md`, the research brief, and the earlier progress checkpoint.
-- Verified the pinned V2 core interfaces needed for reuse: passive cable encoding, Lorenz world generation, causal delay/exponential features, and quadratic ridge readout.
-- Created the execution branch `feature/gate-a-output-prediction`.
-- Wrote and committed the Gate A implementation plan at `docs/superpowers/plans/2026-10-01-gate-a-output-prediction.md` in commit `d7ad490a25f4834112ebab0657ffdd2b15e11488`.
-- Self-reviewed the plan against the frozen protocol: all six comparison arms, horizons 1/5/20, noise 0/0.02, trajectory holdout, causality, timing, separation, independent-hidden-label negative control, predeclared success rule, receipt, findings, and CI reproduction are covered.
+## Measured headline result
 
-No V3 simulation code, test code, dependency file, experiment receipt, website result, or V3 numerical measurement has been created yet. Quoted numerical measurements still refer only to V2.
+Primary condition: zero input noise, horizon 20.
 
-## Implementation scope once plan review is complete
+- raw input delays: mean NRMSE 0.6406
+- internal cable state: 0.7441
+- present input: 0.8160
+- soma history: 0.8314
+- instantaneous soma: 0.9492
+- soma history beat both required baselines on 1/4 held-out trajectories
+- predeclared Gate A evidence criterion: **failed**
+- independent-label negative control: NRMSE 0.9947, R² -0.0045
 
-Execute only the four Gate A tasks in the committed plan:
+Interpretation: useful predictive information remains in the internal cable state, but the specified one-dimensional soma-history output does not expose enough of it to outperform the present observation. Ordinary input delays remain substantially better.
 
-1. provenance-locked V2 core and tests,
-2. causal forecast dataset plus six comparison arms,
-3. full frozen experiment, negative control, receipt, and findings,
-4. independent CI reproducibility checkpoint.
+## Checks actually run locally
 
-Do not begin Gate B, Gate C, spiking, learned morphology, or biological-learning claims.
+```text
+python -m unittest tests.test_core -v
+python -m unittest tests.test_gate_a -v
+python -m unittest discover -s tests -v
+python scripts/run_gate_a.py --quick --output /tmp/gatea-quick.json
+OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py --output results/gate_a_receipt.json
+```
+
+The full suite was rerun after the frozen receipt and documentation were written: **13/13 tests passed**.
+
+## Remote checkpoints
+
+- Gate A implementation plan: `d7ad490a25f4834112ebab0657ffdd2b15e11488`
+- Authorization checkpoint: `482f9965347c0b7b80f34b69e0a9bb22d374b1b2`
+- Pinned V2 core port: `1ed2ba34872051754ad9cb11bdcdf703c43a620d`
+- Causal Gate A protocol: `f0b93f24da5ee5b3fdcde2ff7407299822158bc0`
+
+The result/receipt checkpoint has not yet been published remotely at the time this progress text is authored; use the next commit in branch history for that exact SHA.
+
+## Unresolved caveats
+
+- Gate A uses continuous soma voltage, not spikes or synaptic reception.
+- The output reader is an external supervised quadratic ridge model with delayed observational targets; no biological learning pathway is implemented.
+- Only one soma-history width/stride and one passive cable are tested. Changing them after seeing this result would be a new experiment, not a rescue of Gate A.
+- CI reproducibility is the next implementation task; it must rerun the frozen experiment without overwriting the committed receipt.
 
 ## Precise next action
 
-Review `docs/superpowers/plans/2026-10-01-gate-a-output-prediction.md`. If it is accepted, execute it natively on the existing feature branch with TDD and early remote checkpoints. Preserve negative results and do not tune against held-out outcomes.
+Complete the remote reproducibility checkpoint (Task 4): add CI, rerun tests and the frozen scientific payload in a temporary path, compare it against the committed receipt, then read back the published checkpoint. Do not begin Gate B or C.

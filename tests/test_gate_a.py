@@ -101,3 +101,32 @@ class GateATrainingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GateAExperimentTests(unittest.TestCase):
+    def test_reduced_experiment_receipt_is_complete_and_finite(self):
+        from scripts.run_gate_a import run_experiment
+
+        protocol = Protocol(
+            train_seeds=(10, 11),
+            test_seeds=(100, 101),
+            burn=80,
+            observe=420,
+            discard=80,
+        )
+        receipt = run_experiment(protocol)
+        self.assertEqual(set(receipt["conditions"]), {"noise_0", "noise_0.02"})
+        for noise_payload in receipt["conditions"].values():
+            self.assertEqual(set(noise_payload), {"horizon_1", "horizon_5", "horizon_20"})
+            for horizon_payload in noise_payload.values():
+                self.assertEqual(tuple(horizon_payload["arms"]), ARM_KEYS)
+                for arm in ARM_KEYS:
+                    summary = horizon_payload["arms"][arm]
+                    self.assertTrue(np.isfinite(summary["mean_nrmse"]))
+                    self.assertTrue(np.isfinite(summary["mean_r2"]))
+                    self.assertEqual(len(summary["per_trajectory"]), 2)
+        negative = receipt["negative_control"]
+        self.assertTrue(np.isfinite(negative["mean_nrmse"]))
+        self.assertTrue(np.isfinite(negative["mean_r2"]))
+        self.assertEqual(len(negative["per_trajectory"]), 2)
+        self.assertIn("passed", receipt["primary_evidence"])
