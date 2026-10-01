@@ -2,7 +2,7 @@
 
 ## Current state — 2026-10-01
 
-**Gate A is complete and merged to `main`. Gate C0 has been implemented and its frozen full-protocol result has been measured on `feature/gate-c0-waveform-state-spec`. C0-A and C0-B both passed. CI reproduction is the remaining Gate C0 task.**
+**Gate A is complete and merged to `main`. Gate C0 has been implemented and its frozen full-protocol result has been measured on `feature/gate-c0-waveform-state-spec`. C0-A and C0-B both passed. Task 5 reproduction/CI wiring is complete; merge is allowed only after the final feature-head workflow passes.**
 
 Gate A's negative result remains frozen. Gate C0 is a new output-transform experiment, not a repair of Gate A.
 
@@ -110,7 +110,22 @@ After the receipt existed:
 python -m unittest discover -s tests -v
 ```
 
-Result: **23/23 tests passed**.
+Result at that checkpoint: **23/23 tests passed**.
+
+## Task 5 reproducibility ruling
+
+The committed receipt is still immutable evidence. The strict comparator remains the default and verifies its event-identity SHA-256 fields exactly.
+
+Cross-machine CI exposed one portability issue: those event digests include raw floating-point onset values. With identical source, Python 3.13.5, NumPy 2.3.5, SciPy 1.17.0, and one OpenBLAS thread, the digest still changed with the CPU/OpenBLAS kernel at last-bit precision while the scientific result, event counts, exclusions, and displayed onset times remained unchanged. Forcing the local `SkylakeX` OpenBLAS kernel on an incompatible GitHub runner correctly failed with an illegal-instruction trap, so hardware-specific kernel forcing is not a valid CI solution.
+
+Task 5 therefore uses two verification levels:
+
+- default comparator: strict, including exact event SHA fields;
+- `--portable` comparator for cross-machine CI: ignores only `event_identity_sha256` fields, while still checking source hashes, event counts, exclusions, waveform summaries, normalization/provenance, every forecast metric, primary evidence booleans, negative-control results, protocol, emitter declaration, and claim boundary.
+
+Regression tests pin both behaviors: strict mode still detects a changed event digest, while portable mode ignores digest-only drift but rejects changed forecast metrics and changed source hashes.
+
+The CI runtime is pinned to Python 3.13.5, NumPy 2.3.5, SciPy 1.17.0, and `OPENBLAS_NUM_THREADS=1`. It reruns Gate A, compares Gate A, reruns the unchanged frozen Gate C0 protocol into `/tmp`, then performs the portable scientific comparison against the committed frozen receipt.
 
 ## Remote checkpoints
 
@@ -131,6 +146,6 @@ Result: **23/23 tests passed**.
 - The residual-waveform arm outperforming the raw waveform arm is best read as a coordinate/readout effect, not creation of new information.
 - Raw observed-input delays still outperform every spike-derived representation at the primary horizon.
 
-## Precise next action
+## Integration rule
 
-Complete Gate C0 Task 5 only: add an independent receipt comparator, rerun the exact frozen Gate C0 protocol in CI/local verification, record the successful workflow on the final feature head, and perform whole-branch review. Do **not** design or implement a synapse/full Gate C without a new explicit user request.
+Merge Gate C0 only after the final feature-head GitHub Actions workflow passes the full unit suite, frozen Gate A rerun/comparison, frozen Gate C0 rerun, and portable Gate C0 scientific comparison. Do **not** design or implement a synapse/full Gate C without a new explicit user request.
