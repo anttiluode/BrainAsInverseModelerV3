@@ -30,8 +30,8 @@
 ## Review Focus
 
 1. **HH singular rates:** `alpha_m(-40)` and `alpha_n(-55)` must use analytic limits and remain finite; pinned in Task 1 tests.
-2. **Event overlap/boundaries:** spikes with incomplete `[-1,+4] ms` windows or another onset in `(0,+4] ms` must be excluded with explicit reason counts; pinned in Task 1 tests.
-3. **Same-event controls:** shuffling/residualization may change feature values but never row identity, onset time, or decision time; pinned in Task 2 tests.
+2. **Event overlap/boundaries/undefined features:** every detected spike must either become one valid event or one explicit exclusion reason; pinned in Task 1 tests.
+3. **Same-event controls:** shuffling/residualization may change feature values but never row identity, onset time, or decision time; pinned in Task 2 tests and a shared `ArmSet` identity digest.
 4. **Training-only transforms:** soma normalization, timing normalization, residualizers, and forecasters must not use held-out data or future labels; pinned in Tasks 2–3 tests.
 5. **Nonviable channel:** fewer than 50 primary scored events in any required trajectory must produce a reproducible `not_viable` receipt rather than an exception or parameter search; pinned in Task 3 tests.
 
@@ -76,13 +76,13 @@ Assert two 100 ms runs at constant `10 uA/cm²` are bitwise-equal, finite, have 
 
 Use a synthetic piecewise-linear spike with baseline `-65 mV`, onset at `0 ms`, peak `35 mV` at `1 ms`, and linear repolarization to `-65 mV` at `3 ms`. Assert extracted features are approximately `[100.0, 2.1153846153846154, 4.25, -50.0]` using interpolation under the spec rules.
 
-- [ ] **Step 6: Write failing exclusion tests**
+- [ ] **Step 6: Write failing exclusion-accounting tests**
 
-Construct traces proving: an onset before 1 ms is counted as `boundary`; an onset with another onset within the next 4 ms is counted as `overlap`; an otherwise complete spike produces one `WaveformEvent` whose `spike_index` indexes the full detected-onset array.
+Construct traces proving: an onset before 1 ms increments `boundary`; an onset with another onset within the next 4 ms increments `overlap`; a complete-window spike with no falling half-height crossing increments `feature_undefined`; an otherwise complete spike produces one `WaveformEvent` whose `spike_index` indexes the full detected-onset array. Assert `len(events) + sum(exclusions.values()) == len(onset_times_ms)`.
 
 - [ ] **Step 7: Implement onset interpolation, waveform extraction, and exclusion accounting**
 
-Detect all upward 0 mV crossings first. Use every detected onset for `onset_times_ms`, even when its waveform is later excluded. A valid event stores only the four-feature vector and stable index into that full onset array.
+Detect all upward 0 mV crossings first. Use every detected onset for `onset_times_ms`, even when its waveform is later excluded. Each onset is assigned exactly one outcome: valid event, `boundary`, `overlap`, or `feature_undefined`.
 
 - [ ] **Step 8: Run Task 1 tests GREEN**
 
@@ -114,21 +114,24 @@ git commit -m "feat: add state-dependent HH spike emitter"
 - Produces:
   - `PRIMARY_ARMS = ("timing_only","timing_real_waveform","timing_shuffled_waveform","timing_residual_waveform")`.
   - `SECONDARY_ARMS = ("waveform_only","current_observed_input","raw_input_delays","internal_cable_state")`.
-  - `GateC0Protocol` frozen dataclass containing all frozen schedule/current/threshold seeds and constants from Global Constraints.
-  - `EventTable(seed, event_ids, onset_ms, availability_ms, availability_index, timing_raw, waveform, current_observed, raw_input_delays, internal_cable_state, exclusions)` with NumPy arrays sharing one row axis.
+  - `GateC0Protocol` frozen dataclass with exact defaults: `train_seeds=(10,11,12,13,14,15)`, `test_seeds=(100,101,102,103)`, `burn=1000`, `observe=4000`, `horizons=(1,5,20)`, `noise_levels=(0.0,0.02)`, `world_dt=0.01`, `cable_dt_ms=1.0`, `drive_na=0.01`, `ridge_factor=0.001`, `emitter_dt_ms=0.025`, `emitter_bias=10.0`, `emitter_gain=4.0`, `emitter_tanh_scale=2.0`, `waveform_pre_ms=1.0`, `waveform_post_ms=4.0`, `timing_size=8`, `feature_width=12`, `min_primary_events=50`, `shuffle_seed_base=500000`, `negative_label_seed_base=700000`.
+  - `EventTable(seed: int, event_ids: np.ndarray, onset_ms: np.ndarray, availability_ms: np.ndarray, availability_index: np.ndarray, timing_raw: np.ndarray, waveform: np.ndarray, current_observed: np.ndarray, raw_input_delays: np.ndarray, internal_cable_state: np.ndarray, exclusions: dict[str,int])` with all arrays sharing one row axis.
+  - `ArmSet(event_ids: np.ndarray, onset_ms: np.ndarray, availability_ms: np.ndarray, features: dict[str,np.ndarray])`.
   - `passive_state_for_observed(observed: np.ndarray, observed_mean: float, observed_scale: float, protocol: GateC0Protocol) -> np.ndarray`.
-  - `emitter_current(soma: np.ndarray, soma_mean: float, soma_scale: float) -> np.ndarray` implementing exactly `10 + 4*tanh(z/2)`.
-  - `build_event_table(...) -> EventTable`; use all detected onsets, including waveform-invalid predecessors, to construct the eight ISIs ending at each valid current spike.
+  - `emitter_current(soma: np.ndarray, soma_mean: float, soma_scale: float, protocol: GateC0Protocol) -> np.ndarray` implementing exactly the protocol's frozen `10 + 4*tanh(z/2)` defaults.
+  - `availability_index(availability_ms: float, interval_ms: float = 1.0) -> int`.
+  - `build_event_table(seed: int, observed: np.ndarray, passive_state: np.ndarray, emission: EmissionResult, protocol: GateC0Protocol) -> EventTable`; use all detected onsets, including waveform-invalid predecessors, to construct the eight ISIs ending at each valid current spike.
   - `eligible_rows(table: EventTable, horizon: int, observe: int) -> np.ndarray`.
-  - `fit_timing_stats(train_tables) -> tuple[np.ndarray,np.ndarray]`; fit on all valid training events with eight-ISI history before forecast-boundary trimming, and clamp scales `<1e-12` to `1.0`.
+  - `fit_timing_stats(train_tables: dict[int,EventTable]) -> tuple[np.ndarray,np.ndarray]`; fit on all valid training events with eight-ISI history before forecast-boundary trimming, and clamp scales `<1e-12` to `1.0`.
   - `deranged_waveforms(waveform: np.ndarray, seed: int) -> np.ndarray`.
-  - `residualize_waveforms(train_tables, test_tables, timing_mean, timing_scale, ridge_factor) -> tuple[dict[int,np.ndarray],dict[int,np.ndarray],dict]`; provenance dict records fit-seed sets per predicted trajectory.
-  - `arm_features(table, timing_mean, timing_scale, residual_waveform, protocol) -> dict[str,np.ndarray]`.
-  - `fit_forecasters(features_by_arm, targets, ridge_factor) -> dict[str,QuadraticReadout]`; no hidden-coordinate or clean-truth parameter.
+  - `residualize_waveforms(train_tables: dict[int,EventTable], test_tables: dict[int,EventTable], timing_mean: np.ndarray, timing_scale: np.ndarray, ridge_factor: float) -> tuple[dict[int,np.ndarray],dict[int,np.ndarray],dict]`; provenance dict records fit-seed sets per predicted trajectory.
+  - `arm_features(table: EventTable, timing_mean: np.ndarray, timing_scale: np.ndarray, residual_waveform: np.ndarray, protocol: GateC0Protocol) -> ArmSet`.
+  - `event_identity_sha256(arm_set: ArmSet) -> str` hashing event IDs, onset times, and availability times.
+  - `fit_forecasters(features_by_arm: dict[str,np.ndarray], targets: np.ndarray, ridge_factor: float) -> dict[str,QuadraticReadout]`; no hidden-coordinate or clean-truth parameter.
 
 - [ ] **Step 1: Write failing frozen-drive and availability-index tests**
 
-Assert `emitter_current(np.array([-1,0,1]),0,1)` equals `10 + 4*tanh([-0.5,0,0.5])`. For synthetic event availability times `4.0`, `4.001`, `4.999`, `5.0` ms, assert world indices are `4,5,5,5` respectively.
+Assert `emitter_current(np.array([-1,0,1]),0,1,GateC0Protocol())` equals `10 + 4*tanh([-0.5,0,0.5])`. For availability times `4.0`, `4.001`, `4.999`, `5.0` ms, assert world indices `4,5,5,5`.
 
 - [ ] **Step 2: Write failing timing-context test**
 
@@ -136,7 +139,7 @@ Create ten detected onsets with one invalid-waveform predecessor and one valid t
 
 - [ ] **Step 3: Write failing same-event/width tests**
 
-Build a synthetic `EventTable` with at least 12 rows. Assert every primary arm has shape `(n,12)`, all primary arms preserve identical `event_ids`, and `internal_cable_state` has width 19 while the other secondary arms have width 12.
+Build a synthetic `EventTable` with at least 12 rows. Assert `arm_features` returns one `ArmSet`; every primary feature matrix has shape `(n,12)`; `ArmSet.event_ids/onset_ms/availability_ms` equal the table values exactly; `internal_cable_state` has width 19 while other secondary arms have width 12. Assert one identity digest is shared for the complete arm set.
 
 - [ ] **Step 4: Write failing shuffle-integrity test**
 
@@ -148,15 +151,15 @@ With six toy training trajectory tables and two held-out tables, assert each tra
 
 - [ ] **Step 6: Implement passive coupling, event tables, timing normalization, shuffle, residualization, and arm construction**
 
-Use Gate A `observed_x` normalization semantics for cable drive. Raw-input delays are 12 causal samples ending at `availability_index`; use the existing `delay_features(..., width=12, stride=1)` zero-padding behavior so secondary baselines do not alter event identity.
+Use Gate A `observed_x` normalization semantics for cable drive. Raw-input delays are 12 causal samples ending at `availability_index`; use existing `delay_features(..., width=12, stride=1)` zero-padding so secondary baselines do not alter event identity.
 
 - [ ] **Step 7: Add causality and data-separation tests**
 
-Assert changing observed input strictly after a completed event's availability time does not change that event's stored onset/features. Assert `fit_forecasters` signature contains only `features_by_arm`, `targets`, and `ridge_factor`; inspect that `residualize_waveforms` has no forecast-target or hidden-state argument.
+Assert changing observed input strictly after a completed event's availability time does not change that event's stored onset/features. Assert `fit_forecasters` signature contains only `features_by_arm`, `targets`, and `ridge_factor`; assert `residualize_waveforms` has no forecast-target, clean-truth, or hidden-state argument.
 
 - [ ] **Step 8: Add degenerate-case tests**
 
-Assert no-spike and single-spike emission produce empty event tables without NaNs; constant timing and constant waveform columns remain finite through timing normalization, residualization, and `QuadraticReadout` fitting.
+Assert no-spike and single-spike emissions produce empty event tables without NaNs; constant timing and constant waveform columns remain finite through timing normalization, residualization, and `QuadraticReadout` fitting.
 
 - [ ] **Step 9: Run Task 2 GREEN and full regression**
 
@@ -190,11 +193,11 @@ git commit -m "feat: build Gate C0 event controls"
 
 - [ ] **Step 1: Write failing reduced-receipt test**
 
-Use a smoke protocol with two train seeds, two test seeds, shorter burn/observe values, and `min_primary_events=5`. Assert receipt contains `protocol`, `emitter`, `event_counts`, `conditions`, `primary_evidence`, `negative_control`, `claim_boundary`, `source_sha256`, and runtime versions. Every condition/horizon present in a viable smoke run must report every arm and per-trajectory NRMSE/R².
+Use a smoke protocol with two train seeds, two test seeds, shorter burn/observe values, and `min_primary_events=5`. Assert receipt contains `protocol`, `emitter`, `event_counts`, `conditions`, `primary_evidence`, `negative_control`, `claim_boundary`, `source_sha256`, and runtime versions. Every condition/horizon present in a viable smoke run reports every arm and per-trajectory NRMSE/R².
 
 - [ ] **Step 2: Write failing viability test**
 
-Use a deliberately impossible smoke threshold larger than available events. Assert `run_experiment` returns `primary_evidence.status == "not_viable"`, names every sub-threshold trajectory and count, and does not silently alter drive parameters or throw away the receipt.
+Use a deliberately impossible smoke threshold larger than available events. Assert `run_experiment` returns `primary_evidence.status == "not_viable"`, names every sub-threshold trajectory and count, and does not alter drive parameters or discard the receipt.
 
 - [ ] **Step 3: Write failing evidence-rule tests on synthetic metrics**
 
@@ -202,19 +205,19 @@ Pin C0-A so the same three test seeds must beat both timing-only and shuffled co
 
 - [ ] **Step 4: Write failing negative-control threshold test**
 
-Freeze label seed `700000 + trajectory_seed`. Assert a synthetic control with NRMSE `0.95`, R² `0.0` passes; NRMSE `0.89` fails; R² `0.051` fails. Positive C0 claims must be forced false when the negative control fails even if forecast metrics otherwise meet C0-A/B.
+Freeze label seed `700000 + trajectory_seed`. Assert a synthetic control with NRMSE `0.95`, R² `0.0` passes; NRMSE `0.89` fails; R² `0.051` fails. Receipt must retain raw C0-A/C0-B criterion booleans but set claim-valid/passed false when the negative control fails.
 
 - [ ] **Step 5: Implement the runner in two passes per noise condition**
 
-Pass 1: generate worlds/observations/passive states for all trajectories, fit observed-x and soma statistics on training trajectories only. Pass 2: drive the emitter for train/test using those training soma statistics, build event tables, timing stats, residuals, and arms. Residualization/timing normalization use all valid eight-ISI training events independent of forecast horizon; forecasting fits use only horizon-eligible rows.
+Compute clean input-noise scale from all clean training `x` samples exactly as Gate A. Pass 1: generate observed train/test trajectories and passive states, fitting observed-x normalization and soma mean/std on training trajectories only. Pass 2: drive train/test emitters using those training soma statistics, then build event tables, timing stats, residuals, and arms. Timing normalization and residualization use all valid eight-ISI training events before horizon target trimming; forecasting fits use only `eligible_rows` for that horizon.
 
-- [ ] **Step 6: Implement receipt detail**
+- [ ] **Step 6: Implement receipt detail and same-event receipts**
 
-Record per trajectory: detected spike count, valid waveform count, each exclusion reason, eight-ISI eligible count, scored count for each horizon, waveform-feature mean/std/min/max, and soma normalization used. Record source SHA256 for `emitter.py`, `gate_c0.py`, `cable.py`, `world.py`, `readout.py`, and `run_gate_c0.py`.
+Record per trajectory: detected spike count, valid waveform count, `boundary`, `overlap`, `feature_undefined`, missing-eight-ISI count, scored count for each horizon, waveform feature mean/std/min/max, soma normalization, and `event_identity_sha256`. For every primary arm record the same event identity digest and assert equality before fitting. Record source SHA256 for `emitter.py`, `gate_c0.py`, `cable.py`, `world.py`, `readout.py`, and `run_gate_c0.py`.
 
 - [ ] **Step 7: Implement independent event-label control**
 
-Use the `timing_real_waveform` feature matrix because it is the richest primary receiver. Generate one Gaussian label per scored event from `700000 + seed`, fit only training event labels, evaluate held-out labels, and report mean/per-trajectory NRMSE/R² plus `passed_chance_check` under the frozen `NRMSE>=0.90 and R²<=0.05` rule. Keep its model/features/weights isolated from all forecast fits.
+Use the `timing_real_waveform` feature matrix because it is the richest primary receiver. Generate one Gaussian label per scored event from `700000 + seed`, fit only training event labels, evaluate held-out labels, and report mean/per-trajectory NRMSE/R² plus `passed_chance_check` under frozen `NRMSE>=0.90 and R²<=0.05`. Keep its model/features/weights isolated from all forecast fits.
 
 - [ ] **Step 8: Run smoke RED→GREEN and regression**
 
@@ -264,11 +267,11 @@ Expected: all tests pass.
 
 - [ ] **Step 3: Write findings from the receipt only**
 
-`docs/gate_c0_findings.md` must report event viability first, then C0-A, C0-B, timing/shuffle/residual comparisons, secondary arms, negative control, waveform distributions, and failure localization. If nonviable, do not discuss unrun forecast claims as results.
+`docs/gate_c0_findings.md` reports event viability first, then C0-A, C0-B, timing/shuffle/residual comparisons, secondary arms, negative control, waveform distributions, and failure localization. If nonviable, do not discuss unrun forecast claims as results.
 
 - [ ] **Step 4: Update README and handoff without rewriting Gate A history**
 
-README gets a Gate C0 status/result section and links to the new findings/receipt. `docs/progress.md` records branch, exact result commit, commands actually run, headline metrics or nonviability counts, unresolved caveats, and one precise next action. `AGENTS.md` must say Gate C0 result is frozen and no synapse/full Gate C work starts without a new user request.
+README gets a Gate C0 status/result section and links to the new findings/receipt. `docs/progress.md` records branch, exact result commit, commands actually run, headline metrics or nonviability counts, unresolved caveats, and one precise next action. `AGENTS.md` says Gate C0 result is frozen and no synapse/full Gate C work starts without a new user request.
 
 - [ ] **Step 5: Commit the frozen evidence**
 
@@ -291,11 +294,11 @@ git commit -m "results: freeze Gate C0 waveform-state experiment"
 
 - [ ] **Step 1: Write failing comparator tests**
 
-Assert identical scientific payloads compare equal despite different runtime metadata. Mutating one forecast NRMSE by `1e-3`, one event count, one exclusion count, or one C0 pass/fail boolean must make comparison fail.
+Assert identical scientific payloads compare equal despite different runtime metadata. Mutating one forecast NRMSE by `1e-3`, one event count, one exclusion count, one event identity digest, or one C0 pass/fail boolean must make comparison fail.
 
 - [ ] **Step 2: Implement `compare_gate_c0_receipts.py`**
 
-Reuse comparison semantics from `scripts/compare_receipts.py` but keep Gate A's comparator untouched. Ignore only runtime/environment metadata; event counts, waveform summaries, protocol, evidence, negative control, and claim boundary are scientific and must compare.
+Reuse comparison semantics from `scripts/compare_receipts.py` but keep Gate A's comparator untouched. Ignore only runtime/environment metadata; event counts, waveform summaries, event identity digests, protocol, evidence, negative control, and claim boundary are scientific and must compare.
 
 - [ ] **Step 3: Run comparator tests and fresh local reproduction**
 
@@ -310,7 +313,7 @@ Expected: tests pass and comparator prints a scientific-payload match.
 
 - [ ] **Step 4: Extend GitHub Actions only after the receipt exists**
 
-Keep the existing Gate A rerun/comparison. Add a Gate C0 rerun into `/tmp/gate_c0_ci.json` with `OPENBLAS_NUM_THREADS=1`, then compare it against `results/gate_c0_receipt.json`. CI must run the complete unit suite first under Python 3.12.
+Keep the existing Gate A rerun/comparison. Add a Gate C0 rerun into `/tmp/gate_c0_ci.json` with `OPENBLAS_NUM_THREADS=1`, then compare it against `results/gate_c0_receipt.json`. CI runs the complete unit suite first under Python 3.12.
 
 - [ ] **Step 5: Commit CI/comparator**
 
