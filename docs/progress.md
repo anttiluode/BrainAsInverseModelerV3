@@ -2,29 +2,15 @@
 
 ## Current state — 2026-10-01
 
-**Gate A has been implemented and measured on `feature/gate-a-output-prediction`. Gates B and C have not started.**
+**Gate A is complete and merged to `main`. Gate C0 has been implemented and its frozen full-protocol result has been measured on `feature/gate-c0-waveform-state-spec`. C0-A and C0-B both passed. Task 5 reproduction/CI wiring is complete; merge is allowed only after the final feature-head workflow passes.**
 
-The frozen full Gate A protocol was run once after the reduced-protocol tests passed. No scientific constants were tuned after viewing held-out results.
+Gate A's negative result remains frozen. Gate C0 is a new output-transform experiment, not a repair of Gate A.
 
-## Source and question
+## Gate A anchor
 
-V2 source anchor: `795be2c7e8c4ba25112983fdc9ac2ad00ca232d0`.
+Main merge commit: `0f1627b25737556de80c62c2ea949461e3130296`.
 
-Question: can a receiver use emitted soma history to learn useful forecasts of the observed world, without hidden-state training labels or access to the sender's branch voltages?
-
-## Completed work
-
-- Ported the pinned V2 passive cable, Lorenz generator, temporal feature functions, and quadratic readout with matching source hashes for `cable.py`, `world.py`, and `readout.py`.
-- Added the six frozen Gate A comparison arms with causal timing and equal width 19.
-- Added explicit timing, causality, data-separation, constant-signal, and degenerate-feature tests.
-- Added deterministic train/test trajectory generation, the two declared input-noise levels, horizons 1/5/20, and observation-only forecast training.
-- Added an isolated independent-Gaussian-label negative control.
-- Ran the full frozen experiment and wrote `results/gate_a_receipt.json`. The committed receipt uses a lossless compact schema that removes repeated JSON keys while retaining every full-precision arm/horizon/noise/trajectory metric.
-- Wrote `docs/findings.md` and updated README with the measured result.
-
-## Measured headline result
-
-Primary condition: zero input noise, horizon 20.
+Primary Gate A result at zero input noise, horizon 20:
 
 - raw input delays: mean NRMSE 0.6406
 - internal cable state: 0.7441
@@ -32,41 +18,134 @@ Primary condition: zero input noise, horizon 20.
 - soma history: 0.8314
 - instantaneous soma: 0.9492
 - soma history beat both required baselines on 1/4 held-out trajectories
-- predeclared Gate A evidence criterion: **failed**
-- independent-label negative control: NRMSE 0.9947, R² -0.0045
+- predeclared Gate A criterion: **failed**
 
-Interpretation: useful predictive information remains in the internal cable state, but the specified one-dimensional soma-history output does not expose enough of it to outperform the present observation. Ordinary input delays remain substantially better.
+Interpretation: the passive cable retained useful predictive state internally, but the declared scalar soma-history output/readout did not expose enough of it to beat the present observation. Ordinary raw delays remained better.
 
-## Checks actually run locally
+## Gate C0 source and question
+
+Empirical motivation: Martin-Burgos et al., *Action potential waveforms are state-dependent* (bioRxiv 2026.09.15.751814; preprint, posted 21 September 2026).
+
+Spec:
+
+`docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
+
+Implementation plan:
+
+`docs/superpowers/plans/2026-10-01-gate-c0-waveform-state.md`
+
+Branch:
+
+`feature/gate-c0-waveform-state-spec`
+
+Question:
+
+**Does a spike carry a small state-dependent waveform payload that adds useful predictive information beyond the timing of the exact same spikes?**
+
+## Implemented mechanism and controls
+
+- Passive V3 cable unchanged.
+- One-way classical Hodgkin–Huxley emitter with standard Na/K/leak parameters, steady-state gates at -65 mV, deterministic RK4 at 0.025 ms.
+- Training-only soma normalization and frozen drive `I_emit = 10 + 4*tanh(z_s/2)` uA/cm².
+- Spike onset at interpolated upward 0 mV crossing; waveform available only after the complete -1 to +4 ms window.
+- Four frozen waveform features: peak amplitude, half-height width, peak sharpness, repolarization slope.
+- Eight previous log-ISIs as timing context.
+- Width-12 primary arms: timing only, timing + real waveform, timing + deterministic deranged waveform, timing + timing-residualized waveform.
+- Training residuals generated leave-one-training-trajectory-out; held-out residualizer fit only to all training trajectories.
+- Same event IDs/onset/availability times across primary arms, with event-identity SHA-256 receipts.
+- Secondary baselines: waveform only, current observation, raw observed-input delays, privileged 19-compartment cable state.
+- Independent Gaussian event-label control with frozen claim veto.
+
+## Frozen full result
+
+Full protocol completed with no scientific retuning after result inspection.
+
+Primary condition: zero input noise, horizon 20.
+
+| Arm | Mean NRMSE | Mean R² |
+|---|---:|---:|
+| raw input delays | 0.630064 | 0.591062 |
+| timing + residual waveform | 0.655386 | 0.556855 |
+| timing + real waveform | 0.687272 | 0.512788 |
+| internal cable state | 0.748285 | 0.422873 |
+| timing only | 0.764132 | 0.397984 |
+| timing + shuffled waveform | 0.777386 | 0.376767 |
+| current observed input | 0.818706 | 0.309413 |
+| waveform only | 0.896009 | 0.173123 |
+
+Predeclared evidence:
+
+- **C0-A passed:** real waveform + timing beat timing-only and shuffled waveform in mean NRMSE and beat both on the same 4/4 held-out trajectories.
+- **C0-B passed:** timing + residual waveform beat timing-only in mean NRMSE and on 4/4 held-out trajectories.
+- Negative control passed its chance check: mean NRMSE 1.045339, mean R² -0.041728.
+- Raw input delays remained better than the best waveform arm; no superiority-over-ordinary-memory claim is supported.
+
+Event viability also passed. At the primary horizon, held-out seeds 100–103 supplied 269, 266, 268, and 267 scored events respectively, all well above the frozen minimum of 50.
+
+Machine-readable evidence: `results/gate_c0_receipt.json`. The repository copy losslessly wraps the frozen 38 KB receipt as zlib+base64 with canonical SHA-256 `798243924a50abef58b8cc45e4574dd773009585445c43b271769141ade2253a`; byte-for-byte round-trip was verified before publication.
+
+Human-readable interpretation: `docs/gate_c0_findings.md`.
+
+## Commands actually run
+
+Before the full result:
 
 ```text
-python -m unittest tests.test_core -v
-python -m unittest tests.test_gate_a -v
+python -m unittest tests.test_emitter -v
+python -m unittest tests.test_gate_c0 -v
+python -m unittest tests.test_gate_c0_receipt -v
+python scripts/run_gate_c0.py --quick --output /tmp/gate_c0_quick.json
 python -m unittest discover -s tests -v
-python scripts/run_gate_a.py --quick --output /tmp/gatea-quick.json
-OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py --output results/gate_a_receipt.json
 ```
 
-The full suite was rerun after the frozen receipt, documentation, and reproducibility comparator were written: **16/16 tests passed**. The comparator also confirmed the compact receipt matches the original verbose frozen receipt scientifically.
+The first two full-run wrappers were terminated by the execution harness at 120 s and 270 s before producing a receipt. No held-out result was written or inspected from those attempts. The exact same frozen command was then allowed to complete without a fixed wrapper kill timer:
+
+```text
+OPENBLAS_NUM_THREADS=1 python scripts/run_gate_c0.py --output results/gate_c0_receipt.json
+```
+
+After the receipt existed:
+
+```text
+python -m unittest discover -s tests -v
+```
+
+Result at that checkpoint: **23/23 tests passed**.
+
+## Task 5 reproducibility ruling
+
+The committed receipt is still immutable evidence. The strict comparator remains the default and verifies its event-identity SHA-256 fields exactly.
+
+Cross-machine CI exposed one portability issue: those event digests include raw floating-point onset values. With identical source, Python 3.13.5, NumPy 2.3.5, SciPy 1.17.0, and one OpenBLAS thread, the digest still changed with the CPU/OpenBLAS kernel at last-bit precision while the scientific result, event counts, exclusions, and displayed onset times remained unchanged. Forcing the local `SkylakeX` OpenBLAS kernel on an incompatible GitHub runner correctly failed with an illegal-instruction trap, so hardware-specific kernel forcing is not a valid CI solution.
+
+Task 5 therefore uses two verification levels:
+
+- default comparator: strict, including exact event SHA fields;
+- `--portable` comparator for cross-machine CI: ignores only `event_identity_sha256` fields, while still checking source hashes, event counts, exclusions, waveform summaries, normalization/provenance, every forecast metric, primary evidence booleans, negative-control results, protocol, emitter declaration, and claim boundary.
+
+Regression tests pin both behaviors: strict mode still detects a changed event digest, while portable mode ignores digest-only drift but rejects changed forecast metrics and changed source hashes.
+
+The CI runtime is pinned to Python 3.13.5, NumPy 2.3.5, SciPy 1.17.0, and `OPENBLAS_NUM_THREADS=1`. It reruns Gate A, compares Gate A, reruns the unchanged frozen Gate C0 protocol into `/tmp`, then performs the portable scientific comparison against the committed frozen receipt.
 
 ## Remote checkpoints
 
-- Gate A implementation plan: `d7ad490a25f4834112ebab0657ffdd2b15e11488`
-- Authorization checkpoint: `482f9965347c0b7b80f34b69e0a9bb22d374b1b2`
-- Pinned V2 core port: `1ed2ba34872051754ad9cb11bdcdf703c43a620d`
-- Causal Gate A protocol: `f0b93f24da5ee5b3fdcde2ff7407299822158bc0`
-- Frozen Gate A result/receipt: `12896155c637021d2b99740b542cf0308f7ce464`
-- Reproducibility workflow/comparator: `0b8e75d58c15306349c1966aaad53e56b0a0a89f`
+- Gate C0 design/spec branch point and planning history remain on this feature branch.
+- HH emitter checkpoint: `91e6fc95edc60df2bceac054ece6b8d512a5de5a`
+- event-control checkpoint: remote lineage through `b5b164de1a8a758283cc78ce2d2a858997d416cd`
+- frozen-runner/test checkpoint: `b58da1e2b9e46ceeb4360a760d4c0ae996c344a3`
+- frozen full receipt commit: `5d172ac5a9af8cca59f7ab346922249e0b56ddc4`
+- Gate C0 findings commit: `6fb85e90aae22e3ed4af77596f3ebba1711f5fde`
+- README result checkpoint: `7eea0f50b7cac50e6db9ef50b1d0cf53956e5f28`
 
-GitHub Actions run `36816787185` on `0b8e75d5` completed successfully under Python 3.12. It passed the unit suite, reran the full frozen experiment into `/tmp/gate_a_ci.json`, and matched the regenerated scientific payload against the committed receipt.
+## Scientific boundaries and unresolved caveats
 
-## Unresolved caveats
+- The active emitter is one illustrative HH compartment driven by an artificial fixed soma-to-current map.
+- No axonal propagation, terminal calcium, vesicle release, postsynaptic neuron, or plasticity is modeled.
+- The external forecasting reader remains supervised by delayed observed `x`; this is not a biological learning rule.
+- Passing C0-A/B does not establish biological waveform coding in general.
+- The residual-waveform arm outperforming the raw waveform arm is best read as a coordinate/readout effect, not creation of new information.
+- Raw observed-input delays still outperform every spike-derived representation at the primary horizon.
 
-- Gate A uses continuous soma voltage, not spikes or synaptic reception.
-- The output reader is an external supervised quadratic ridge model with delayed observational targets; no biological learning pathway is implemented.
-- Only one soma-history width/stride and one passive cable are tested. Changing them after seeing this result would be a new experiment, not a rescue of Gate A.
-- The first CI reproducibility run passed. Environment metadata is intentionally excluded from the scientific comparison; scientific floats are compared at `rtol=1e-9`, `atol=1e-10`.
+## Integration rule
 
-## Precise next action
-
-Gate A is complete pending merge decision. Analyze the negative Gate A result and, only if explicitly requested, design Gate B as a separate experiment. Do not begin Gate B or C automatically.
+Merge Gate C0 only after the final feature-head GitHub Actions workflow passes the full unit suite, frozen Gate A rerun/comparison, frozen Gate C0 rerun, and portable Gate C0 scientific comparison. Do **not** design or implement a synapse/full Gate C without a new explicit user request.

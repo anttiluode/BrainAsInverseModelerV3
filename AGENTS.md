@@ -1,52 +1,60 @@
 # Agent instructions — V3 and Superpowers
 
-## Current authorization
+## Current authorization and frozen results
 
-On 1 October 2026 the user requested a new research brief and Superpowers handoff, and explicitly said **do not start implementation yet**.
+Gate A is complete, merged to `main`, and frozen as a negative result.
 
-The repository is a documentation-only planning checkpoint. Reading the brief is not permission to execute it. Do not add simulation code, test code, dependencies, CI workflows, browser assets, or V3 numerical results under this authorization.
+Gate C0 has been explicitly designed, planned, implemented, and measured on `feature/gate-c0-waveform-state-spec`. Its full result is frozen: C0-A and C0-B passed under the predeclared primary condition, and the independent-label chance control passed. Do not alter the emitter mapping, waveform features, event selection, residualization, reader settings, or evidence thresholds to improve that result.
 
-The user's latest explicit instructions take precedence. A later request can authorize a particular gate; record its scope in `docs/progress.md`. Earlier approvals from V1 or V2 do not authorize V3 implementation.
+The current Gate C0 design and plan are:
+
+- `docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
+- `docs/superpowers/plans/2026-10-01-gate-c0-waveform-state.md`
+
+The current authorization is to finish Gate C0 reproducibility/verification only. Do not start Gate B, a synapse, a postsynaptic neuron, or full Gate C without a new explicit user request.
 
 ## Read order
 
 1. `README.md`
-2. `docs/superpowers/specs/2026-10-01-emitted-state-design.md`
-3. `docs/progress.md`
-
-The research brief is a proposed design, not an executable implementation plan. Its numerical protocol has not been run in V3. V2 results must remain attributed to the pinned V2 source.
+2. `docs/findings.md`
+3. `docs/gate_c0_findings.md`
+4. `results/gate_a_receipt.json`
+5. `results/gate_c0_receipt.json`
+6. Gate C0 spec and implementation plan above
+7. `docs/progress.md`
 
 ## Superpowers workflow
 
-Use installed Superpowers skills by name; do not assume a machine-specific skill path.
+Use installed Superpowers skills by name.
 
-- **brainstorming:** refine only the gate the user selects. The brief already records the motivation, alternatives, constraints, and candidate protocol. Resolve actual gaps; do not restart the whole conversation.
-- **writing-plans:** when planning is requested, prepare a short, reviewable plan for that gate with exact interfaces, tests, commands, and completion criteria. Do not silently turn a planning request into execution.
-- **using-git-worktrees:** isolate code changes when implementation is authorized.
-- **test-driven-development:** verify physics, causality, data separation, and readout behavior with meaningful tests.
-- **systematic-debugging:** investigate a failed control before proposing a fix.
-- **verification-before-completion:** claim success only after fresh checks, a recorded receipt, and read-back of the published checkpoint.
-
-Respect the authorized scope and the current user's decisions. Do not invent repeated approval steps for routine choices already covered by their request. Do not launch parallel agents merely because they are available. If a skill is unavailable, say so and preserve the same explicit scope and verification requirements.
+- **systematic-debugging:** investigate any failed control or reproduction before proposing a change.
+- **test-driven-development:** any implementation fix requires a failing test first.
+- **verification-before-completion:** claim Gate C0 complete only after the unit suite, full frozen rerun, scientific receipt comparison, and exact-head CI verification pass.
+- **requesting-code-review:** perform the whole-branch review before integration; if no subagent tool is available, document that the final review is a self-review.
+- **finishing-a-development-branch:** after verification, present the integration decision rather than silently merging.
 
 ## Scientific boundaries
 
-- Gate A receiver features contain emitted soma voltage history only.
-- Direct-input and internal-state arms are named comparison controls, not privileged inputs to that receiver.
-- Fit using later observed input values as targets. Hidden Lorenz coordinates and clean simulator truth remain evaluation-only.
-- Declare the delayed teaching signal: observation-trained prediction is not an autonomous biological learning rule.
-- Keep trajectory splits, feature width, decoder class, normalization, and forecast horizons explicit.
-- Never present an external decoder's success as proof that the passive cable itself learned an inverse.
-- Never claim dendritic superiority from beating the present-only baseline; compare ordinary delays.
-- Account for pulse-timing assumptions, noise, calibration, and indistinguishable histories.
-- A negative outcome is a valid result. Do not tune against held-out answers to rescue it.
+### Gate A
 
-## Checkpoint discipline for later authorized work
+- Gate A receiver features contain emitted soma-voltage history only.
+- Direct-input and internal-state arms are comparison controls.
+- Gate A's failed criterion is frozen. Later positive gates do not retroactively make it pass.
 
-Work on one gate at a time. Publish each coherent, verified stage early rather than waiting for a finished website.
+### Gate C0
 
-Before any handoff or interruption, update `docs/progress.md` with: the remote commit/branch, completed work, commands actually run, observed results, unresolved issues, and one precise next action. Label local-only work as local-only; never imply it survived remotely.
+- The question is whether an active spike waveform carries predictive information beyond timing of the **same spikes**.
+- The passive cable stays unchanged and feeds a one-way active emitter.
+- Primary controls are timing-only, timing + real waveform, timing + shuffled waveform, and timing + timing-residualized waveform.
+- Hidden Lorenz coordinates never enter forecasting fits.
+- C0-A and C0-B passed on the frozen full protocol; raw input delays still performed better than the best waveform representation.
+- This is an information-access result in a synthetic mechanism, not evidence that biological neurons generally use waveform coding.
+- No synaptic release, postsynaptic receiver, biological learning rule, active dendrites, or consciousness/field claim is part of Gate C0.
 
-A checkpoint must let a fresh session resume without the previous chat. User corrections, pauses, or cancellations override the current task list immediately. Do not continue implementation in the background after a pause.
+## Checkpoint discipline
 
-**Present next action: wait for a new user instruction. No implementation is authorized.**
+Before any interruption, update `docs/progress.md` with the remote branch/commit, commands actually run, observed result, unresolved issues, and one precise next action. Label any local-only work explicitly.
+
+A checkpoint must let a fresh session resume without the previous chat. User corrections, pauses, and cancellations override current plans immediately.
+
+**Present next action: finish Gate C0 receipt comparison and exact-head CI verification. Do not begin another biological mechanism automatically.**
