@@ -4,6 +4,14 @@
 
 V2 showed that an illustrative passive cable can retain information about hidden causes in its internal voltages. V3 asks a stricter question: does useful state survive the sender's output bottleneck, and can a receiver use it without hidden-state training labels?
 
+## Paper — State-Bearing Pings and Readout Heads
+
+The Gate A/C0 results motivate a broader computational synthesis: a spike may be better treated as **event time + a small context-dependent physical state**, while the downstream synapse can be viewed, by analogy, as a **readout head** whose biophysics selects which directions of that state matter.
+
+The paper develops the correspondence carefully rather than claiming neurons are Transformers: same token, different context gives different residual-stream activations; same spike time, different history can give different waveform states. It connects the frozen V3 results to Transformer residual-stream geometry, waveform-state physiology, presynaptic calcium/release, and concrete transmission experiments that could falsify the idea.
+
+Read [`docs/state_bearing_pings_and_readout_heads.md`](docs/state_bearing_pings_and_readout_heads.md).
+
 ## Gate C0 result — a tiny state-bearing spike payload
 
 Gate C0 is now measured. It keeps the passive V3 sender fixed and adds a one-way classical Hodgkin–Huxley emitter. Every primary comparison uses the **same emitted spikes, onset times, and decision times**. The only extra information supplied to the waveform arms is four measurements of the current spike: peak amplitude, half-height width, peak sharpness, and repolarization slope.
