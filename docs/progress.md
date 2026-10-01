@@ -2,29 +2,15 @@
 
 ## Current state — 2026-10-01
 
-**Gate A has been implemented and measured on `feature/gate-a-output-prediction`. Gates B and C have not started.**
+**Gate A is complete and merged to `main`. Gate C0 has an approved chat design and a written specification on `feature/gate-c0-waveform-state-spec`; implementation has not started.**
 
-The frozen full Gate A protocol was run once after the reduced-protocol tests passed. No scientific constants were tuned after viewing held-out results.
+Gate A's negative result remains frozen. Gate C0 is a new hypothesis, not a repair of Gate A.
 
-## Source and question
+## Gate A anchor
 
-V2 source anchor: `795be2c7e8c4ba25112983fdc9ac2ad00ca232d0`.
+Main merge commit: `0f1627b25737556de80c62c2ea949461e3130296`.
 
-Question: can a receiver use emitted soma history to learn useful forecasts of the observed world, without hidden-state training labels or access to the sender's branch voltages?
-
-## Completed work
-
-- Ported the pinned V2 passive cable, Lorenz generator, temporal feature functions, and quadratic readout with matching source hashes for `cable.py`, `world.py`, and `readout.py`.
-- Added the six frozen Gate A comparison arms with causal timing and equal width 19.
-- Added explicit timing, causality, data-separation, constant-signal, and degenerate-feature tests.
-- Added deterministic train/test trajectory generation, the two declared input-noise levels, horizons 1/5/20, and observation-only forecast training.
-- Added an isolated independent-Gaussian-label negative control.
-- Ran the full frozen experiment and wrote `results/gate_a_receipt.json`. The committed receipt uses a lossless compact schema that removes repeated JSON keys while retaining every full-precision arm/horizon/noise/trajectory metric.
-- Wrote `docs/findings.md` and updated README with the measured result.
-
-## Measured headline result
-
-Primary condition: zero input noise, horizon 20.
+Primary Gate A result at zero input noise, horizon 20:
 
 - raw input delays: mean NRMSE 0.6406
 - internal cable state: 0.7441
@@ -32,41 +18,66 @@ Primary condition: zero input noise, horizon 20.
 - soma history: 0.8314
 - instantaneous soma: 0.9492
 - soma history beat both required baselines on 1/4 held-out trajectories
-- predeclared Gate A evidence criterion: **failed**
-- independent-label negative control: NRMSE 0.9947, R² -0.0045
+- predeclared Gate A criterion: **failed**
 
-Interpretation: useful predictive information remains in the internal cable state, but the specified one-dimensional soma-history output does not expose enough of it to outperform the present observation. Ordinary input delays remain substantially better.
+Interpretation: the passive cable retained useful predictive state internally, but the declared scalar soma-history output/readout did not expose enough of it to beat the present observation. Ordinary raw delays remained better.
 
-## Checks actually run locally
+Post-merge GitHub Actions on `0f1627b2` passed unit tests, reran the frozen Gate A experiment, and matched the regenerated scientific payload to the committed receipt.
 
-```text
-python -m unittest tests.test_core -v
-python -m unittest tests.test_gate_a -v
-python -m unittest discover -s tests -v
-python scripts/run_gate_a.py --quick --output /tmp/gatea-quick.json
-OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py --output results/gate_a_receipt.json
-```
+## New empirical motivation
 
-The full suite was rerun after the frozen receipt, documentation, and reproducibility comparator were written: **16/16 tests passed**. The comparator also confirmed the compact receipt matches the original verbose frozen receipt scientifically.
+The user supplied Martin-Burgos et al., *Action potential waveforms are state-dependent* (bioRxiv 2026.09.15.751814; preprint, posted 21 September 2026).
 
-## Remote checkpoints
+The paper motivates a narrower new test: a spike may be an event with a small state-dependent waveform payload rather than only a binary timestamp. Gate C0 does not assume that conclusion; it tests whether a simple active emitter can make waveform features useful beyond spike timing on the V3 forecasting task.
 
-- Gate A implementation plan: `d7ad490a25f4834112ebab0657ffdd2b15e11488`
-- Authorization checkpoint: `482f9965347c0b7b80f34b69e0a9bb22d374b1b2`
-- Pinned V2 core port: `1ed2ba34872051754ad9cb11bdcdf703c43a620d`
-- Causal Gate A protocol: `f0b93f24da5ee5b3fdcde2ff7407299822158bc0`
-- Frozen Gate A result/receipt: `12896155c637021d2b99740b542cf0308f7ce464`
-- Reproducibility workflow/comparator: `0b8e75d58c15306349c1966aaad53e56b0a0a89f`
+## Gate C0 written design
 
-GitHub Actions run `36816787185` on `0b8e75d5` completed successfully under Python 3.12. It passed the unit suite, reran the full frozen experiment into `/tmp/gate_a_ci.json`, and matched the regenerated scientific payload against the committed receipt.
+Spec:
 
-## Unresolved caveats
+`docs/superpowers/specs/2026-10-01-gate-c0-waveform-state-design.md`
 
-- Gate A uses continuous soma voltage, not spikes or synaptic reception.
-- The output reader is an external supervised quadratic ridge model with delayed observational targets; no biological learning pathway is implemented.
-- Only one soma-history width/stride and one passive cable are tested. Changing them after seeing this result would be a new experiment, not a rescue of Gate A.
-- The first CI reproducibility run passed. Environment metadata is intentionally excluded from the scientific comparison; scientific floats are compared at `rtol=1e-9`, `atol=1e-10`.
+Branch:
+
+`feature/gate-c0-waveform-state-spec`
+
+Design checkpoint commits:
+
+- written Gate C0 spec: `f2449ade6de8a6b82298303e6421315942b78945`
+- authorization/read-order update: `050857ae5517d80ce62f9447af7d29abc884711a`
+
+### Central question
+
+**Does a spike carry a small state-dependent waveform payload that adds useful predictive information beyond the timing of the exact same spikes?**
+
+### Frozen design choices pending user review
+
+- Keep the existing passive V3 cable unchanged.
+- Add a one-way Hodgkin-Huxley-style active emitter; no feedback into the passive cable.
+- Standard HH Na/K/leak parameters, `dt = 0.025 ms`.
+- Training-only soma normalization and fixed drive mapping `I_emit = 10 + 4*tanh(z_s/2)` uA/cm².
+- Spike onset: upward 0 mV crossing.
+- Waveform window: -1 ms to +4 ms around onset; forecast features become available only after +4 ms.
+- Tiny-state waveform payload: peak voltage, half-height width, peak sharpness, repolarization slope.
+- Event-centric examples; require eight previous spikes and use the previous eight log-ISIs as timing context.
+- Same V3 train/test trajectory split, noise levels, and forecast horizons 1/5/20; primary condition remains zero noise, horizon 20.
+- Primary width-matched arms: timing only, timing + real waveform, timing + shuffled waveform, timing + timing-residualized waveform.
+- Secondary arms: waveform only, current observed input, raw observed-input delays, privileged internal cable state.
+- Reuse V3 degree-two ridge reader unless an implementation incompatibility is documented before held-out results.
+
+### Predeclared claim structure
+
+C0-A supports “waveform adds useful information beyond timing” only if timing + real waveform beats both timing-only and timing + shuffled waveform in mean primary NRMSE and beats both controls on at least 3/4 held-out trajectories.
+
+C0-B supports “useful waveform information is not reducible to recent timing context” only if timing + residual waveform beats timing-only in mean primary NRMSE and on at least 3/4 held-out trajectories.
+
+A negative result is retained. Do not retune the emitter mapping, add waveform features, alter event selection, or introduce synapses after viewing held-out outcomes.
+
+## Authorization state
+
+The user approved the **chat design**. Under the Superpowers brainstorming workflow, that permits writing this specification but does not yet authorize implementation.
+
+No Gate C0 simulation code, tests, dependencies, receipts, CI changes, or numerical results have been added.
 
 ## Precise next action
 
-Gate A is complete pending merge decision. Analyze the negative Gate A result and, only if explicitly requested, design Gate B as a separate experiment. Do not begin Gate B or C automatically.
+Ask the user to review the written Gate C0 specification. If they approve the written spec, invoke `writing-plans` and prepare a concrete implementation plan. Do not implement Gate C0 before that plan-stage approval.
