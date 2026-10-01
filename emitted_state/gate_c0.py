@@ -195,6 +195,7 @@ def build_event_table(
     if not rows:
         table = _empty_event_table(seed, exclusions)
         if protocol.timing_size != 8 or protocol.feature_width != 12:
+            # Frozen Gate C0 values are required by the EventTable shape contract.
             raise ValueError("Gate C0 timing_size/feature_width must remain 8/12")
         return table
 
@@ -247,6 +248,7 @@ def deranged_waveforms(waveform: np.ndarray, seed: int) -> np.ndarray:
         perm = rng.permutation(n)
         if np.all(perm != base):
             return waveform[perm].copy()
+    # Deterministic fallback that is always a derangement for n >= 2.
     return waveform[np.roll(base, 1)].copy()
 
 
