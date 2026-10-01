@@ -25,6 +25,7 @@ jobs:
       - name: Re-run frozen Gate C0 experiment
         env:
           OPENBLAS_NUM_THREADS: '1'
+          OPENBLAS_CORETYPE: 'SkylakeX'
         run: python scripts/run_gate_c0.py --output /tmp/gate_c0_ci.json
       - name: Compare Gate C0 scientific payload with committed receipt
         run: python scripts/compare_gate_c0_receipts.py results/gate_c0_receipt.json /tmp/gate_c0_ci.json
