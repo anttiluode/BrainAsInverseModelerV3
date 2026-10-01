@@ -121,13 +121,33 @@ def _expand_compact(receipt: dict) -> dict:
     return data
 
 
-def normalize_scientific(receipt: dict) -> dict:
+def _drop_event_identity_digests(value):
+    """Remove raw-float event digests for cross-machine reproduction only.
+
+    The digest is strict evidence inside the frozen receipt, but it hashes raw
+    floating-point onset values and therefore changes with BLAS/CPU kernels at
+    last-bit precision. Portable comparison still checks source hashes, event
+    counts, exclusions, metrics, evidence booleans, and the negative control.
+    """
+    if isinstance(value, dict):
+        return {
+            key: _drop_event_identity_digests(item)
+            for key, item in value.items()
+            if key != "event_identity_sha256"
+        }
+    if isinstance(value, list):
+        return [_drop_event_identity_digests(item) for item in value]
+    return value
+
+
+def normalize_scientific(receipt: dict, *, portable: bool = False) -> dict:
     """Return one verbose, serialization- and environment-independent payload."""
     data = _expand_compact(_unwrap(receipt))
     missing = [key for key in SCIENTIFIC_KEYS if key not in data]
     if missing:
         raise ValueError(f"Gate C0 receipt missing scientific keys: {missing}")
-    return {key: copy.deepcopy(data[key]) for key in SCIENTIFIC_KEYS}
+    payload = {key: copy.deepcopy(data[key]) for key in SCIENTIFIC_KEYS}
+    return _drop_event_identity_digests(payload) if portable else payload
 
 
 def _compare(a, b, path, rtol, atol):
@@ -162,9 +182,16 @@ def _compare(a, b, path, rtol, atol):
     return None
 
 
-def compare_scientific(left: dict, right: dict, rtol: float = 1e-9, atol: float = 1e-10):
-    a = normalize_scientific(left)
-    b = normalize_scientific(right)
+def compare_scientific(
+    left: dict,
+    right: dict,
+    rtol: float = 1e-9,
+    atol: float = 1e-10,
+    *,
+    portable: bool = False,
+):
+    a = normalize_scientific(left, portable=portable)
+    b = normalize_scientific(right, portable=portable)
     mismatch = _compare(a, b, "$", rtol, atol)
     return mismatch is None, "scientific payloads match" if mismatch is None else mismatch
 
@@ -175,10 +202,21 @@ def main():
     parser.add_argument("observed", type=Path)
     parser.add_argument("--rtol", type=float, default=1e-9)
     parser.add_argument("--atol", type=float, default=1e-10)
+    parser.add_argument(
+        "--portable",
+        action="store_true",
+        help="ignore hardware-sensitive raw-float event SHA fields only",
+    )
     args = parser.parse_args()
     expected = json.loads(args.expected.read_text(encoding="utf-8"))
     observed = json.loads(args.observed.read_text(encoding="utf-8"))
-    ok, message = compare_scientific(expected, observed, args.rtol, args.atol)
+    ok, message = compare_scientific(
+        expected,
+        observed,
+        args.rtol,
+        args.atol,
+        portable=args.portable,
+    )
     print(message)
     raise SystemExit(0 if ok else 1)
 
