@@ -4,11 +4,36 @@
 
 V2 showed that an illustrative passive cable can retain information about hidden causes in its internal voltages. V3 asks a stricter question: does useful state survive the sender's output bottleneck, and can a receiver use it without hidden-state training labels?
 
+## Gate C0 result — a tiny state-bearing spike payload
+
+Gate C0 is now measured. It keeps the passive V3 sender fixed and adds a one-way classical Hodgkin–Huxley emitter. Every primary comparison uses the **same emitted spikes, onset times, and decision times**. The only extra information supplied to the waveform arms is four measurements of the current spike: peak amplitude, half-height width, peak sharpness, and repolarization slope.
+
+The two predeclared waveform criteria **passed**.
+
+At zero input noise and the primary 20-sample forecast horizon:
+
+| Receiver information | Mean NRMSE ↓ |
+|---|---:|
+| Raw observed-input delays | **0.6301** |
+| Timing + residual waveform | **0.6554** |
+| Timing + real waveform | **0.6873** |
+| Internal cable state | 0.7483 |
+| Timing only | 0.7641 |
+| Timing + shuffled waveform | 0.7774 |
+| Current observed input | 0.8187 |
+| Waveform only | 0.8960 |
+
+Real waveform + timing improved mean NRMSE by **10.1%** relative to timing alone and beat both timing-only and the dimension-matched shuffled-waveform control on **4/4 held-out trajectories**. The timing-residualized waveform arm improved on timing alone by **14.2%** and also won on **4/4** trajectories. The independent Gaussian-label control remained chance-like (NRMSE 1.0453, R² -0.0417), so the frozen claim veto did not fire.
+
+The important boundary is equally clear: this is evidence that a small event-specific waveform payload can carry predictive information beyond spike timing in this synthetic mechanism. It is **not** evidence that biological neurons generally use this code, and raw observed-input delays remain better than the best waveform arm.
+
+Read [`docs/gate_c0_findings.md`](docs/gate_c0_findings.md) and [`results/gate_c0_receipt.json`](results/gate_c0_receipt.json) for the frozen result.
+
 ## Gate A result
 
-Gate A is now measured. The receiver sees only a causal history of soma voltage and is trained against later observed `x` values. Hidden Lorenz `y,z` never enter forecast training.
+Gate A asked whether a receiver restricted to causal soma-voltage history could forecast later observed `x`. Hidden Lorenz `y,z` never entered forecast training.
 
-The predeclared primary test **did not pass**.
+The predeclared primary Gate A test **did not pass**.
 
 At zero input noise and a 20-sample forecast horizon:
 
@@ -20,44 +45,51 @@ At zero input noise and a 20-sample forecast horizon:
 | Soma history | 0.8314 |
 | Instantaneous soma | 0.9492 |
 
-The internal cable state predicts the future better than the current observation, so useful predictive information is retained inside the sender. But the declared soma-history reader does not preserve that advantage. It beats both required baselines on only 1/4 held-out trajectories, versus the frozen requirement of at least 3/4.
+The internal cable state predicted the future better than the current observation, so useful predictive information remained inside the sender. But the declared soma-history reader did not preserve that advantage. This established a separation between **retention** and **output readability**.
 
-This is the main V3 result so far: **retention and downstream readability are different claims**.
+Gate C0 does not overwrite or rescue Gate A. It tests a new nonlinear output transform and finds that active spike shape can expose additional state beyond the timing of the same spikes.
 
-Read the full interpretation in [`docs/findings.md`](docs/findings.md) and the machine-readable evidence in [`results/gate_a_receipt.json`](results/gate_a_receipt.json). The committed receipt uses a lossless compact schema: arm and metric names are stored once, while all full-precision per-trajectory values remain present.
+Gate A details: [`docs/findings.md`](docs/findings.md) and [`results/gate_a_receipt.json`](results/gate_a_receipt.json).
 
 ## Reproduce
+
+Install and run the unit suite:
 
 ```bash
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
+```
+
+Gate A:
+
+```bash
 OPENBLAS_NUM_THREADS=1 python scripts/run_gate_a.py --output /tmp/gate_a_receipt.json
 python scripts/compare_receipts.py results/gate_a_receipt.json /tmp/gate_a_receipt.json
 ```
 
-The published protocol uses training trajectories 10–15, held-out trajectories 100–103, forecast horizons 1/5/20, and input-noise levels 0/0.02. All six readers have width 19 and use the same degree-two ridge readout.
+Gate C0 (the full HH run is substantially slower):
 
-## What V2 established
+```bash
+OPENBLAS_NUM_THREADS=1 python scripts/run_gate_c0.py --output /tmp/gate_c0_receipt.json
+python scripts/compare_gate_c0_receipts.py results/gate_c0_receipt.json /tmp/gate_c0_receipt.json
+```
 
-The pinned V2 source is commit `795be2c7e8c4ba25112983fdc9ac2ad00ca232d0`.
-
-V2 found that diverse branch dynamics can make known-timing hidden pulse amplitudes recoverable from a soma trace, while symmetric branches collapse source identity. Its internal 19-compartment state also carried information about withheld Lorenz coordinates. Ordinary delay samples performed better than the cable on that benchmark.
-
-V3 removes two privileges from the actual receiver: no direct access to the 19 internal voltages and no hidden-state labels as training targets.
+The Gate C0 protocol uses training trajectories 10–15, held-out trajectories 100–103, forecast horizons 1/5/20, input-noise levels 0/0.02, and a frozen one-way HH emitter at 0.025 ms integration step.
 
 ## Current progression
 
 | Gate | Question | Status |
 |---|---|---|
-| A — output and prediction | Does soma history support learned prediction on new trajectories? | **Measured: primary criterion failed** |
+| A — scalar output and prediction | Does soma-voltage history support learned prediction on new trajectories? | **Measured: primary criterion failed** |
+| C0 — state-bearing spike | Does waveform add useful information beyond timing of the same spikes? | **Measured: C0-A and C0-B passed** |
 | B — interruptions and ambiguity | Does retained distinction help through a sensory gap? | Not designed/executed yet |
-| C — neuronal transmission | Do useful distinctions survive spike generation and reception? | Not designed/executed yet |
+| C — synaptic transmission | Does the waveform distinction survive presynaptic release and reception? | Not designed/executed yet |
 
-Gate A's negative result is preserved as-is. It does not authorize automatically changing the output code or moving into Gates B/C.
+No later gate starts automatically from the positive C0 result.
 
 ## Scientific boundary
 
-This is an illustrative passive-cable mechanism, not a fitted biological neuron. The external forecasting reader is supervised with delayed observations; no biological teaching pathway is claimed. The result does not establish that dendrites implement Takens embeddings, that soma voltage is the brain's relevant output code, or that predictive information cannot survive more realistic active/spiking transmission.
+The passive cable and active emitter are illustrative mechanisms, not fitted biological neurons. Forecast readers are external supervised quadratic ridge models trained using delayed observations; no biological teaching pathway is claimed. Gate C0 does not model axonal propagation, presynaptic calcium/vesicle release, a postsynaptic neuron, or plasticity. A passing reader establishes information access under the declared simulation and controls, not a universal neural code or a complete inverse model.
 
 ## Lineage
 
