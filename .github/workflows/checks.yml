@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  gate-a:
+  scientific-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,5 +20,11 @@ jobs:
         env:
           OPENBLAS_NUM_THREADS: '1'
         run: python scripts/run_gate_a.py --output /tmp/gate_a_ci.json
-      - name: Compare scientific payload with committed receipt
+      - name: Compare Gate A scientific payload with committed receipt
         run: python scripts/compare_receipts.py results/gate_a_receipt.json /tmp/gate_a_ci.json
+      - name: Re-run frozen Gate C0 experiment
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: python scripts/run_gate_c0.py --output /tmp/gate_c0_ci.json
+      - name: Compare Gate C0 scientific payload with committed receipt
+        run: python scripts/compare_gate_c0_receipts.py results/gate_c0_receipt.json /tmp/gate_c0_ci.json
