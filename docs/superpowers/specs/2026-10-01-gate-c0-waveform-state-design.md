@@ -1,7 +1,7 @@
 # Gate C0 design — state-bearing spike emission
 
 Date: 2026-10-01  
-Status: approved in chat; written-spec review pending  
+Status: written specification approved by user; implementation plan pending review  
 Scope: design only; no numerical implementation authorized yet
 
 ## Purpose
@@ -296,4 +296,4 @@ A later implementation plan should produce:
 - human-readable findings,
 - CI rerun and scientific-payload comparison.
 
-No implementation should begin from this spec until the user reviews this written document and approves proceeding to the implementation-plan stage.
+No implementation should begin from this spec until the user approves a concrete implementation plan and execution approach.
