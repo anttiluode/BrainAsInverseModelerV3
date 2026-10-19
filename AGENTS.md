@@ -1,5 +1,17 @@
 # Agent instructions — V3 and Superpowers
 
+## 2026-10-19 follow-up authorization: gradient and echo readouts
+
+After PR #3, the user explicitly requested continuing in this repository with
+gradient and baseline-echo readouts. The bounded protocol is
+`docs/gradient_echo_protocol.md`: no encoder, pulse or gate changes; compare
+own-trace temporal differences and resting-pulse calibration; label paired-copy
+echo and full spatial currents as privileged diagnostics. Primary fresh seeds
+200–203, target q+20, availability q+19; old q+39 timing remains secondary.
+Freeze the protocol/code before the full run and preserve either outcome.
+The earlier A/C0/P results remain immutable. Publication authorization from the
+prior explicit push/PR approval persists for this continuation; do not merge.
+
 ## 2026-10-19 authorization: Gate P return-pulse assay
 
 The user explicitly approved adding the return-pulse test to this repository.
