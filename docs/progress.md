@@ -1,6 +1,6 @@
 # V3 progress and handoff
 
-## Current state — 2026-10-19: Gate P (local branch)
+## Current state — 2026-10-19: Gate P
 
 The user approved the return-pulse assay proposed in the conversation. Work is
 on local branch `feature/gate-p-return-probe`, based on main commit
@@ -20,11 +20,22 @@ Active-wait 0.991765 versus active-ping 0.992047 NRMSE; pulse is slightly worse
 on 4/4 trajectories. Mechanism checks and independent-label chance check pass.
 See `docs/gate_p_findings.md`. Frozen A/C0 source and receipts are unchanged.
 
-Publication is blocked: automatic approval review rejected `git push` because it
-requires explicit authorization to publish this branch. No alternate upload or
-connector push was attempted. There is no remote Gate P branch, PR, or exact-head
-CI result. CI reproduction has been configured locally but cannot run remotely
-until publication is approved. Preserve this local checkout and branch.
+Publication was initially blocked by automatic approval review pending explicit
+authorization. The user then explicitly approved pushing the branch and opening
+a PR. Native Git lacks credentials here, so publication used the authenticated
+GitHub connector. The published commits have identical Git trees to their
+tested local counterparts:
+
+- local preregistration `099984a40af5e0e9cc2222d55c6414534ffe7762` maps to remote
+  `98f7341095d447202477f573fed22e7b2dda87d1`, tree
+  `bb5947237f3902182ac212f33d84fbecee686b72`;
+- local result `37271307ac39721a722f57b8e2acdd22255313d4` maps to remote
+  `0953f6852ed29d93ffe1cf30d9372980c2307489`, tree
+  `5710d6c7ea047a7f063ec2569baa5b6a2de23c8d`.
+
+The remote branch is `feature/gate-p-return-probe`. Gate P's protocol/implementation
+and receipt remain byte-identical. This documentation-only publication checkpoint
+precedes PR creation and exact-head CI verification. Do not merge automatically.
 
 Local verification completed:
 
@@ -37,9 +48,8 @@ Local verification completed:
   physics, runner modules, and committed receipts are byte-for-byte unchanged.
 - `git diff --check` passes. CI is configured but remote execution is unverified.
 
-Next action: obtain explicit push authorization before publishing the tested
-branch and opening a PR. Do not tune the gate or pulse to turn the negative
-result positive.
+Next action: open the authorized PR and verify GitHub Actions on its exact head.
+Do not tune the gate or pulse to turn the negative result positive.
 
 ## Current state — 2026-10-01
 
