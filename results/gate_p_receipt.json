@@ -1,0 +1,647 @@
+{
+  "base_commit": "f950bfb30f0f72f92648242b1e802aa38d334a4e",
+  "claim_boundary": {
+    "biological_learning_rule_claimed": false,
+    "counterfactual_echo_is_primary_feature": false,
+    "gate_a_and_c0_unchanged": true,
+    "hidden_yz_used_for_forecast_fit": false,
+    "receiver_access": "own soma trace for interrogation arms",
+    "snapshot_copies_not_continuous_feedback": true,
+    "synthetic_local_voltage_to_held_conductance": true,
+    "test_seeds_reuse_earlier_benchmark": true,
+    "training_target": "later observed x only"
+  },
+  "conditions": {
+    "noise_0": {
+      "arms": {
+        "active_ping": {
+          "mean_nrmse": 0.992046761194295,
+          "mean_r2": -0.013821416926762031,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0124788616706857,
+              "r2": -0.11420427885804996,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9567134972792841,
+              "r2": 0.09294486640669009,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.017709101646905,
+              "r2": -0.06808604761235126,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9812855841803053,
+              "r2": 0.03405979235666301,
+              "seed": 103
+            }
+          ]
+        },
+        "active_wait": {
+          "mean_nrmse": 0.9917651516946894,
+          "mean_r2": -0.01325764371251098,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0124114029737394,
+              "r2": -0.11405581103776408,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9563447242008069,
+              "r2": 0.09364399534656032,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.01733362912641,
+              "r2": -0.06729807592048442,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9809708504778013,
+              "r2": 0.03467931676164426,
+              "seed": 103
+            }
+          ]
+        },
+        "fixed_ping": {
+          "mean_nrmse": 1.0002007355622147,
+          "mean_r2": -0.029509114965791117,
+          "per_trajectory": [
+            {
+              "nrmse": 1.013413319366415,
+              "r2": -0.1162619163545,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9797711035591258,
+              "r2": 0.04869640741255665,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0116724549334573,
+              "r2": -0.05545270151506876,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9959460643898609,
+              "r2": 0.004981750593847645,
+              "seed": 103
+            }
+          ]
+        },
+        "fixed_wait": {
+          "mean_nrmse": 1.0002007355622147,
+          "mean_r2": -0.0295091149657907,
+          "per_trajectory": [
+            {
+              "nrmse": 1.013413319366415,
+              "r2": -0.11626191635449978,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9797711035591258,
+              "r2": 0.04869640741255665,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.011672454933457,
+              "r2": -0.05545270151506809,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9959460643898606,
+              "r2": 0.004981750593848422,
+              "seed": 103
+            }
+          ]
+        },
+        "internal_cable_state": {
+          "mean_nrmse": 1.0075935720592952,
+          "mean_r2": -0.04531314254617186,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0296072255698674,
+              "r2": -0.15222171453634226,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9803896832353846,
+              "r2": 0.04749481486153995,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0170600140183803,
+              "r2": -0.06672404671524346,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.0033173654135483,
+              "r2": -0.009801623794641667,
+              "seed": 103
+            }
+          ]
+        },
+        "present_input": {
+          "mean_nrmse": 0.9931231525573753,
+          "mean_r2": -0.014717006233383623,
+          "per_trajectory": [
+            {
+              "nrmse": 0.9951847729927482,
+              "r2": -0.07646604891719022,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.975241113611515,
+              "r2": 0.057472811228217235,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0159765234106548,
+              "r2": -0.06445246031685548,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9860902002145829,
+              "r2": 0.02457767307229397,
+              "seed": 103
+            }
+          ]
+        },
+        "raw_input_delays": {
+          "mean_nrmse": 0.99912690373566,
+          "mean_r2": -0.02800203431397419,
+          "per_trajectory": [
+            {
+              "nrmse": 1.024110150782864,
+              "r2": -0.13995113102869827,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9699074470410807,
+              "r2": 0.06775412284475257,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0067221213056554,
+              "r2": -0.04514885301518179,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.99576789581304,
+              "r2": 0.005337723943230732,
+              "seed": 103
+            }
+          ]
+        },
+        "reset_ping": {
+          "mean_nrmse": 1.0272993216479618,
+          "mean_r2": -0.08573519975485061,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0410105803335556,
+              "r2": -0.17788578104993302,
+              "seed": 100
+            },
+            {
+              "nrmse": 1.0136336755060227,
+              "r2": -0.018197308193756978,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0270988842209412,
+              "r2": -0.08788612982230548,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.0274541465313272,
+              "r2": -0.05897157995340696,
+              "seed": 103
+            }
+          ]
+        },
+        "soma_history": {
+          "mean_nrmse": 1.0235735117065494,
+          "mean_r2": -0.07892514636201711,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0515788724751305,
+              "r2": -0.20192286245682411,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9955102141385511,
+              "r2": 0.017887306378965406,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0256470315258037,
+              "r2": -0.08481274687929163,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.0215579286867125,
+              "r2": -0.04685228249091811,
+              "seed": 103
+            }
+          ]
+        }
+      },
+      "sample_count_per_trajectory": 866
+    },
+    "noise_0.02": {
+      "arms": {
+        "active_ping": {
+          "mean_nrmse": 0.9917289599518335,
+          "mean_r2": -0.013667975459201953,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0120780870941959,
+              "r2": -0.1138676520111308,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.956332124852138,
+              "r2": 0.09322397529474824,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0174706398695266,
+              "r2": -0.06810845463698034,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9810349879914735,
+              "r2": 0.034080229516555094,
+              "seed": 103
+            }
+          ]
+        },
+        "active_wait": {
+          "mean_nrmse": 0.991448200624216,
+          "mean_r2": -0.013105805768034051,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0120108338357172,
+              "r2": -0.11371962244480249,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9559630174482013,
+              "r2": 0.09392380152772595,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.017095714592874,
+              "r2": -0.06732143030480264,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9807232366200711,
+              "r2": 0.034694028149742984,
+              "seed": 103
+            }
+          ]
+        },
+        "fixed_ping": {
+          "mean_nrmse": 0.9999764001776092,
+          "mean_r2": -0.029551871166798666,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0132165984278776,
+              "r2": -0.11637509535801582,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9795590944132814,
+              "r2": 0.04864233534329121,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0114030122365498,
+              "r2": -0.05540723274301684,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9957268956327283,
+              "r2": 0.004932508090546794,
+              "seed": 103
+            }
+          ]
+        },
+        "fixed_wait": {
+          "mean_nrmse": 0.9999764001776101,
+          "mean_r2": -0.02955187116680047,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0132165984278787,
+              "r2": -0.11637509535801827,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9795590944132824,
+              "r2": 0.04864233534328943,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0114030122365503,
+              "r2": -0.055407232743018175,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9957268956327291,
+              "r2": 0.004932508090545129,
+              "seed": 103
+            }
+          ]
+        },
+        "internal_cable_state": {
+          "mean_nrmse": 1.0072920774569056,
+          "mean_r2": -0.04519997811242704,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0294845354192055,
+              "r2": -0.15251132683936497,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9802827035389977,
+              "r2": 0.047236263244877064,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0164445171146834,
+              "r2": -0.0659551586462519,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.002956553754736,
+              "r2": -0.009569690208968362,
+              "seed": 103
+            }
+          ]
+        },
+        "present_input": {
+          "mean_nrmse": 0.9930111085916484,
+          "mean_r2": -0.01499768905052426,
+          "per_trajectory": [
+            {
+              "nrmse": 0.9954206649046667,
+              "r2": -0.0775039052052593,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9750029399702209,
+              "r2": 0.057471719955601186,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0156961488700536,
+              "r2": -0.06438609450167676,
+              "seed": 102
+            },
+            {
+              "nrmse": 0.9859246806216523,
+              "r2": 0.02442752354923783,
+              "seed": 103
+            }
+          ]
+        },
+        "raw_input_delays": {
+          "mean_nrmse": 1.0029265643121543,
+          "mean_r2": -0.03634203722550658,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0280542726851942,
+              "r2": -0.14931118368452845,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9732365468945615,
+              "r2": 0.06088374518906592,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0099885239027202,
+              "r2": -0.0524572369718419,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.000426913766141,
+              "r2": -0.004483473434721885,
+              "seed": 103
+            }
+          ]
+        },
+        "reset_ping": {
+          "mean_nrmse": 1.0270385448537405,
+          "mean_r2": -0.08571525420761178,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0407418822526928,
+              "r2": -0.17785440954516285,
+              "seed": 100
+            },
+            {
+              "nrmse": 1.01338077155588,
+              "r2": -0.01818772812154612,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0268373147447074,
+              "r2": -0.08786465149125178,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.0271942108616814,
+              "r2": -0.05895422767248637,
+              "seed": 103
+            }
+          ]
+        },
+        "soma_history": {
+          "mean_nrmse": 1.0229443773686713,
+          "mean_r2": -0.0781068302499254,
+          "per_trajectory": [
+            {
+              "nrmse": 1.0507005282928146,
+              "r2": -0.20050355156244937,
+              "seed": 100
+            },
+            {
+              "nrmse": 0.9951640064802598,
+              "r2": 0.018089601847760872,
+              "seed": 101
+            },
+            {
+              "nrmse": 1.0249288773438516,
+              "r2": -0.0838246886630698,
+              "seed": 102
+            },
+            {
+              "nrmse": 1.0209840973577584,
+              "r2": -0.04618868262194331,
+              "seed": 103
+            }
+          ]
+        }
+      },
+      "sample_count_per_trajectory": 866
+    }
+  },
+  "controls": {
+    "noise_0": {
+      "active_echo_range": 0.015118014428473936,
+      "fixed_echo_range": 3.9968028886505635e-15,
+      "matched_soma_active_echo_difference": 0.0011540610483285474,
+      "matched_soma_fixed_echo_difference": 1.6653345369377348e-16,
+      "reset_trace_range": 0.0
+    },
+    "noise_0.02": {
+      "active_echo_range": 0.01511438208661775,
+      "fixed_echo_range": 3.552713678800501e-15,
+      "matched_soma_active_echo_difference": 0.0011540610483285474,
+      "matched_soma_fixed_echo_difference": 1.6653345369377348e-16,
+      "reset_trace_range": 0.0
+    }
+  },
+  "experiment": "Gate P \u2014 state-sensitive soma return pulse",
+  "negative_control": {
+    "description": "independent Gaussian labels, active_ping reader; evaluation only",
+    "label_seed_formula": "900000 + trajectory_seed",
+    "mean_nrmse": 0.990503962000134,
+    "mean_r2": -0.0016153284975340687,
+    "per_trajectory": [
+      {
+        "nrmse": 0.9763625266040322,
+        "r2": -0.004529497191225751,
+        "seed": 100
+      },
+      {
+        "nrmse": 0.9885655349094535,
+        "r2": -0.0007584037383483455,
+        "seed": 101
+      },
+      {
+        "nrmse": 0.9969820286042125,
+        "r2": -0.0026507289194888095,
+        "seed": 102
+      },
+      {
+        "nrmse": 1.0001057578828378,
+        "r2": 0.001477315858926631,
+        "seed": 103
+      }
+    ]
+  },
+  "normalization": {
+    "noise_0": {
+      "clean_noise_scale": 7.868806956408366,
+      "fit_seeds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "observed_mean": -0.9541185907785908,
+      "observed_scale": 7.868806956408366
+    },
+    "noise_0.02": {
+      "clean_noise_scale": 7.868806956408366,
+      "fit_seeds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "observed_mean": -0.9535501384240384,
+      "observed_scale": 7.870733704376097
+    }
+  },
+  "primary_evidence": {
+    "access_passed": false,
+    "access_win_seeds": [],
+    "condition": "noise=0, h=20 after 19-sample blackout",
+    "forecast_passed": false,
+    "forecast_win_seeds": [
+      101,
+      103
+    ],
+    "mechanism_controls_passed": true,
+    "negative_control_passed": true,
+    "raw_access_criterion": false,
+    "raw_forecast_criterion": false,
+    "required_trajectory_wins": 3,
+    "rule": "active_ping beats all three matched controls in mean and on same >=3/4 trajectories"
+  },
+  "protocol": {
+    "burn": 1000,
+    "cable_dt_ms": 1.0,
+    "discard": 500,
+    "drive_na": 0.01,
+    "gate_gain": 0.75,
+    "gate_scale_mv": 1.0,
+    "history_size": 19,
+    "history_stride": 2,
+    "horizons": [
+      20
+    ],
+    "noise_levels": [
+      0.0,
+      0.02
+    ],
+    "observe": 4000,
+    "probe_steps": 19,
+    "pulse_na": 0.01,
+    "ridge_factor": 0.001,
+    "sample_stride": 4,
+    "test_seeds": [
+      100,
+      101,
+      102,
+      103
+    ],
+    "train_seeds": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "world_dt": 0.01
+  },
+  "runtime": {
+    "numpy": "2.3.5",
+    "python": "3.12.14",
+    "scipy": "1.17.0"
+  },
+  "schema_version": 1,
+  "source_sha256": {
+    "docs/gate_p_protocol.md": "e6ed450669f1b0241d35896a223671ca4e95c1a4fc3bdb903823c9f40686114e",
+    "emitted_state/cable.py": "7d07d19736194187af9cc8bf7c732447823915bdd2fe420c6892b72372989734",
+    "emitted_state/gate_a.py": "2763d0fc26ef1acba120902e4e612660a3c8db330ad26b10fa3be49946f0ba0e",
+    "emitted_state/gate_p.py": "bc4ed349bb6658cb29f320883e2b3a4acd4905f7401541fbc0c5b18d0716bfb1",
+    "emitted_state/readout.py": "25ea65dccfe11a23f84cd4eb33da546468b9148eaa6a8e38405116ffb23f6afc",
+    "emitted_state/world.py": "399d7d66276b3b45edfeed939c3d31883ed736382dbe6c7aaccd8db0417999de",
+    "scripts/run_gate_p.py": "96fb5c0ccb7dfe4f19e64f20cd097873902229053fd7ab1aa24a3e18924d3130"
+  },
+  "timing": {
+    "all_arms_share_rows": true,
+    "forecast_horizon_after_availability": 20,
+    "fresh_sensory_samples_during_interrogation": 0,
+    "query_first": 500,
+    "query_indices_sha256": "70cf8c0002e2b727b421e4aa72fe28932d4c575d3f61861b2e61204729865d99",
+    "query_last": 3960,
+    "readout_availability_offset": 19,
+    "samples_per_trajectory": 866,
+    "target_indices_sha256": "7bd8829df6cd9dbe69be4e33761f2badcfec874d440db1c4c946118efa246656",
+    "target_offset": 39
+  }
+}

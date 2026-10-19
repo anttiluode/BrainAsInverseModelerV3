@@ -2,6 +2,24 @@
 
 **Can a receiver learn useful predictions of a hidden process from the signal emitted by a history-bearing dendritic cable?**
 
+## Gate P — return pulse (2026-10-19)
+
+The new matched return-pulse assay is **negative**. A synthetic state-dependent
+branch gate produces state-dependent echo differences, but adding a soma
+pulse does not improve the declared forecast: active-no-pulse NRMSE **0.991765**,
+active-pulse **0.992047**, slightly worse on all four test trajectories. Both
+predeclared criteria fail; the mechanism and independent-label controls pass.
+Fixed-cable pulse and no-pulse forecasts tie exactly as expected.
+
+All arms share a 19-sample sensory blackout and predict 20 samples beyond readout
+availability. These scores are not directly comparable to Gate A's h=20 scores.
+Gate A and C0 remain unchanged. See the [protocol](docs/gate_p_protocol.md),
+[findings](docs/gate_p_findings.md), and [full receipt](results/gate_p_receipt.json).
+
+```bash
+python scripts/run_gate_p.py --output gate_p_verify.json
+```
+
 V2 showed that an illustrative passive cable can retain information about hidden causes in its internal voltages. V3 asks a stricter question: does useful state survive the sender's output bottleneck, and can a receiver use it without hidden-state training labels?
 
 ## Paper — State-Bearing Pings and Readout Heads

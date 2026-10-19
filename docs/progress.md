@@ -1,5 +1,46 @@
 # V3 progress and handoff
 
+## Current state — 2026-10-19: Gate P (local branch)
+
+The user approved the return-pulse assay proposed in the conversation. Work is
+on local branch `feature/gate-p-return-probe`, based on main commit
+`f950bfb30f0f72f92648242b1e802aa38d334a4e`. Preregistration, implementation and
+tests were committed as `099984a` before full held-out evaluation. An independent
+review found no critical/important issues in the physical solver, causal timing,
+data splits or matched controls. A reviewed CLI safety issue was test-fixed.
+
+Full command actually run:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python scripts/run_gate_p.py --output results/gate_p_receipt.json
+```
+
+The unchanged full protocol is **negative**: P-access and P-forecast both fail.
+Active-wait 0.991765 versus active-ping 0.992047 NRMSE; pulse is slightly worse
+on 4/4 trajectories. Mechanism checks and independent-label chance check pass.
+See `docs/gate_p_findings.md`. Frozen A/C0 source and receipts are unchanged.
+
+Publication is blocked: automatic approval review rejected `git push` because it
+requires explicit authorization to publish this branch. No alternate upload or
+connector push was attempted. There is no remote Gate P branch, PR, or exact-head
+CI result. CI reproduction has been configured locally but cannot run remotely
+until publication is approved. Preserve this local checkout and branch.
+
+Local verification completed:
+
+- `OPENBLAS_NUM_THREADS=1 python -m unittest discover -s tests -v`: 53 tests pass.
+- A second full Gate P run into `/tmp/gate_p_verify.json` matches every scientific
+  field of the frozen receipt via `scripts/compare_gate_p_receipts.py`.
+- A fresh full Gate A run into `/tmp/gate_a_p_verify.json` matches its old frozen
+  receipt via the unchanged `scripts/compare_receipts.py`.
+- Gate P source hashes match the files used for the recorded run. Old A/C0
+  physics, runner modules, and committed receipts are byte-for-byte unchanged.
+- `git diff --check` passes. CI is configured but remote execution is unverified.
+
+Next action: obtain explicit push authorization before publishing the tested
+branch and opening a PR. Do not tune the gate or pulse to turn the negative
+result positive.
+
 ## Current state — 2026-10-01
 
 **Gate A is complete and merged to `main`. Gate C0 has been implemented and its frozen full-protocol result has been measured on `feature/gate-c0-waveform-state-spec`. C0-A and C0-B both passed. Task 5 reproduction/CI wiring is complete; merge is allowed only after the final feature-head workflow passes.**

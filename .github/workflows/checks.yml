@@ -28,3 +28,9 @@ jobs:
         run: python scripts/run_gate_c0.py --output /tmp/gate_c0_ci.json
       - name: Compare Gate C0 scientific payload with committed receipt
         run: python scripts/compare_gate_c0_receipts.py --portable results/gate_c0_receipt.json /tmp/gate_c0_ci.json
+      - name: Re-run frozen Gate P return-pulse assay
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: python scripts/run_gate_p.py --output /tmp/gate_p_ci.json
+      - name: Compare Gate P scientific payload with committed receipt
+        run: python scripts/compare_gate_p_receipts.py results/gate_p_receipt.json /tmp/gate_p_ci.json
