@@ -34,8 +34,14 @@ unchanged. All **60 tests pass**. A second full run into
 `/tmp/gradient_echo_verify.json` matches every scientific field via the existing
 receipt comparator, including source hashes. `git diff --check` passes, and a
 byte comparison verifies every old frozen source/receipt is unchanged.
-Next action: publish this tested continuation to PR #3 and inspect its checks.
-Do not merge.
+The tested trees are published to PR #3. Local frozen source `ea32c83` maps to
+remote `e53236246ec3b9c9a0f4707c1e436d5d015630e4` (identical tree
+`a1e9f58c1d4c41ec1a0c9b5f8ed80c328adda706`); local results `f7594c5` map to
+remote `57754a152781c7ca85c6096d79aa8e35b9080d2f` (identical tree
+`930a2deeaf1e636c18c01c5f038cda20dc13e1e6`). Final independent review found no
+important issues and independently confirmed all 60 tests and the receipt match.
+This documentation-only checkpoint follows publication. Next action: inspect
+GitHub Actions on the resulting PR head. Do not merge.
 
 ## Current state — 2026-10-19: Gate P
 
