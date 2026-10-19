@@ -2,6 +2,27 @@
 
 **Can a receiver learn useful predictions of a hidden process from the signal emitted by a history-bearing dendritic cable?**
 
+## Gradient/echo follow-up — read the changes (2026-10-19)
+
+On **four fresh test trajectories**, reading the same nineteen soma samples as
+`[v1, v2-v1, ..., v19-v18]` reduces forecast error from **0.674525 to 0.393459**
+without a pulse (**41.7%**). Raw input delays score **0.635349**. This is a
+coordinate/preconditioning benefit for the fixed quadratic ridge reader; no
+additional information, learned neuron, or general architecture advantage is
+claimed. The primary target is q+20, after readout availability at q+19.
+
+The pulse arm scores **0.395142**, slightly worse at that primary target, so the
+predeclared joint pulse/readout criterion still fails. The exact paired echo
+scores 0.406551 but requires two identically prepared copies. Subtracting the
+known resting pulse leaves the raw reader's predictions unchanged. Both target
+clocks, the fresh/reused tests and the diagnostic access limits are preserved in
+the [findings](docs/gradient_echo_findings.md), [protocol](docs/gradient_echo_protocol.md),
+and [receipt](results/gradient_echo_receipt.json).
+
+```bash
+python scripts/run_gradient_echo.py --output gradient_echo_verify.json
+```
+
 ## Gate P — return pulse (2026-10-19)
 
 The new matched return-pulse assay is **negative**. A synthetic state-dependent

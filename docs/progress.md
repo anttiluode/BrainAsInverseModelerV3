@@ -1,5 +1,42 @@
 # V3 progress and handoff
 
+## Current state — 2026-10-19: gradient/echo readout follow-up
+
+The user explicitly requested continuing this repository with Gemini's gradient
+and echo-readout proposal. Local branch `feature/gradient-echo-readout` starts
+from published PR #3 head `e246bbda4b47e76f1f99b3331e01f319439664da`. That head's
+push and PR workflows both completed successfully, including A, C0 and P.
+
+The new protocol/code were committed before full evaluation as `2e3a23f`.
+Independent review caught an audit-unit mismatch; a failing regression test was
+added and the normalized echo control was fixed in `ea32c83` before the full run.
+No scientific constants or feature definitions changed after full evaluation.
+
+Full command actually run:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python scripts/run_gradient_echo.py --output results/gradient_echo_receipt.json
+```
+
+Fresh tests 200–203 at target q+20 (availability q+19): gradient-wait 0.393459,
+gradient-ping 0.395142, raw-wait 0.674525, raw delays 0.635349, paired echo
+diagnostic 0.406551. Gradients improve the fixed reader strongly; the pulse is
+slightly worse on all four primary tests, so the predeclared joint criterion
+fails. At secondary q+39, gradient-ping has a tiny improvement (0.880640 versus
+0.881041). Fixed resting-pulse subtraction changes predictions only ~5.79e-12.
+Do not conflate a useful readout coordinate change with a primary pulse success.
+
+The receipt retains old benchmark seeds separately, both clocks, normalized
+controls and source hashes. Full state currents and paired echoes are privileged
+diagnostics. `docs/gradient_echo_findings.md` explains the strong coordinate gain
+and its reader/regularization limits. The old A/C0/P source and receipts stay
+unchanged. All **60 tests pass**. A second full run into
+`/tmp/gradient_echo_verify.json` matches every scientific field via the existing
+receipt comparator, including source hashes. `git diff --check` passes, and a
+byte comparison verifies every old frozen source/receipt is unchanged.
+Next action: publish this tested continuation to PR #3 and inspect its checks.
+Do not merge.
+
 ## Current state — 2026-10-19: Gate P
 
 The user approved the return-pulse assay proposed in the conversation. Work is
