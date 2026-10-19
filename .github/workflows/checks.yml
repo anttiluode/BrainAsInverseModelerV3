@@ -16,6 +16,12 @@ jobs:
         run: python -m pip install numpy==2.3.5 scipy==1.17.0
       - name: Unit tests
         run: python -m unittest discover -s tests -v
+      - name: Re-run frozen gradient and echo readout comparison
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: python scripts/run_gradient_echo.py --output /tmp/gradient_echo_ci.json
+      - name: Compare gradient and echo scientific receipt
+        run: python scripts/compare_gate_p_receipts.py results/gradient_echo_receipt.json /tmp/gradient_echo_ci.json
       - name: Re-run frozen Gate A experiment
         env:
           OPENBLAS_NUM_THREADS: '1'
@@ -28,3 +34,9 @@ jobs:
         run: python scripts/run_gate_c0.py --output /tmp/gate_c0_ci.json
       - name: Compare Gate C0 scientific payload with committed receipt
         run: python scripts/compare_gate_c0_receipts.py --portable results/gate_c0_receipt.json /tmp/gate_c0_ci.json
+      - name: Re-run frozen Gate P return-pulse assay
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: python scripts/run_gate_p.py --output /tmp/gate_p_ci.json
+      - name: Compare Gate P scientific payload with committed receipt
+        run: python scripts/compare_gate_p_receipts.py results/gate_p_receipt.json /tmp/gate_p_ci.json

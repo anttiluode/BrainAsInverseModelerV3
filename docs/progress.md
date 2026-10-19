@@ -1,5 +1,99 @@
 # V3 progress and handoff
 
+## Current state — 2026-10-19: gradient/echo readout follow-up
+
+The user explicitly requested continuing this repository with Gemini's gradient
+and echo-readout proposal. Local branch `feature/gradient-echo-readout` starts
+from published PR #3 head `e246bbda4b47e76f1f99b3331e01f319439664da`. That head's
+push and PR workflows both completed successfully, including A, C0 and P.
+
+The new protocol/code were committed before full evaluation as `2e3a23f`.
+Independent review caught an audit-unit mismatch; a failing regression test was
+added and the normalized echo control was fixed in `ea32c83` before the full run.
+No scientific constants or feature definitions changed after full evaluation.
+
+Full command actually run:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python scripts/run_gradient_echo.py --output results/gradient_echo_receipt.json
+```
+
+Fresh tests 200–203 at target q+20 (availability q+19): gradient-wait 0.393459,
+gradient-ping 0.395142, raw-wait 0.674525, raw delays 0.635349, paired echo
+diagnostic 0.406551. Gradients improve the fixed reader strongly; the pulse is
+slightly worse on all four primary tests, so the predeclared joint criterion
+fails. At secondary q+39, gradient-ping has a tiny improvement (0.880640 versus
+0.881041). Fixed resting-pulse subtraction changes predictions only ~5.79e-12.
+Do not conflate a useful readout coordinate change with a primary pulse success.
+
+The receipt retains old benchmark seeds separately, both clocks, normalized
+controls and source hashes. Full state currents and paired echoes are privileged
+diagnostics. `docs/gradient_echo_findings.md` explains the strong coordinate gain
+and its reader/regularization limits. The old A/C0/P source and receipts stay
+unchanged. All **60 tests pass**. A second full run into
+`/tmp/gradient_echo_verify.json` matches every scientific field via the existing
+receipt comparator, including source hashes. `git diff --check` passes, and a
+byte comparison verifies every old frozen source/receipt is unchanged.
+The tested trees are published to PR #3. Local frozen source `ea32c83` maps to
+remote `e53236246ec3b9c9a0f4707c1e436d5d015630e4` (identical tree
+`a1e9f58c1d4c41ec1a0c9b5f8ed80c328adda706`); local results `f7594c5` map to
+remote `57754a152781c7ca85c6096d79aa8e35b9080d2f` (identical tree
+`930a2deeaf1e636c18c01c5f038cda20dc13e1e6`). Final independent review found no
+important issues and independently confirmed all 60 tests and the receipt match.
+This documentation-only checkpoint follows publication. Next action: inspect
+GitHub Actions on the resulting PR head. Do not merge.
+
+## Current state — 2026-10-19: Gate P
+
+The user approved the return-pulse assay proposed in the conversation. Work is
+on local branch `feature/gate-p-return-probe`, based on main commit
+`f950bfb30f0f72f92648242b1e802aa38d334a4e`. Preregistration, implementation and
+tests were committed as `099984a` before full held-out evaluation. An independent
+review found no critical/important issues in the physical solver, causal timing,
+data splits or matched controls. A reviewed CLI safety issue was test-fixed.
+
+Full command actually run:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python scripts/run_gate_p.py --output results/gate_p_receipt.json
+```
+
+The unchanged full protocol is **negative**: P-access and P-forecast both fail.
+Active-wait 0.991765 versus active-ping 0.992047 NRMSE; pulse is slightly worse
+on 4/4 trajectories. Mechanism checks and independent-label chance check pass.
+See `docs/gate_p_findings.md`. Frozen A/C0 source and receipts are unchanged.
+
+Publication was initially blocked by automatic approval review pending explicit
+authorization. The user then explicitly approved pushing the branch and opening
+a PR. Native Git lacks credentials here, so publication used the authenticated
+GitHub connector. The published commits have identical Git trees to their
+tested local counterparts:
+
+- local preregistration `099984a40af5e0e9cc2222d55c6414534ffe7762` maps to remote
+  `98f7341095d447202477f573fed22e7b2dda87d1`, tree
+  `bb5947237f3902182ac212f33d84fbecee686b72`;
+- local result `37271307ac39721a722f57b8e2acdd22255313d4` maps to remote
+  `0953f6852ed29d93ffe1cf30d9372980c2307489`, tree
+  `5710d6c7ea047a7f063ec2569baa5b6a2de23c8d`.
+
+The remote branch is `feature/gate-p-return-probe`. Gate P's protocol/implementation
+and receipt remain byte-identical. This documentation-only publication checkpoint
+precedes PR creation and exact-head CI verification. Do not merge automatically.
+
+Local verification completed:
+
+- `OPENBLAS_NUM_THREADS=1 python -m unittest discover -s tests -v`: 53 tests pass.
+- A second full Gate P run into `/tmp/gate_p_verify.json` matches every scientific
+  field of the frozen receipt via `scripts/compare_gate_p_receipts.py`.
+- A fresh full Gate A run into `/tmp/gate_a_p_verify.json` matches its old frozen
+  receipt via the unchanged `scripts/compare_receipts.py`.
+- Gate P source hashes match the files used for the recorded run. Old A/C0
+  physics, runner modules, and committed receipts are byte-for-byte unchanged.
+- `git diff --check` passes. CI is configured but remote execution is unverified.
+
+Next action: open the authorized PR and verify GitHub Actions on its exact head.
+Do not tune the gate or pulse to turn the negative result positive.
+
 ## Current state — 2026-10-01
 
 **Gate A is complete and merged to `main`. Gate C0 has been implemented and its frozen full-protocol result has been measured on `feature/gate-c0-waveform-state-spec`. C0-A and C0-B both passed. Task 5 reproduction/CI wiring is complete; merge is allowed only after the final feature-head workflow passes.**

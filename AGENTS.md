@@ -1,5 +1,29 @@
 # Agent instructions — V3 and Superpowers
 
+## 2026-10-19 follow-up authorization: gradient and echo readouts
+
+After PR #3, the user explicitly requested continuing in this repository with
+gradient and baseline-echo readouts. The bounded protocol is
+`docs/gradient_echo_protocol.md`: no encoder, pulse or gate changes; compare
+own-trace temporal differences and resting-pulse calibration; label paired-copy
+echo and full spatial currents as privileged diagnostics. Primary fresh seeds
+200–203, target q+20, availability q+19; old q+39 timing remains secondary.
+Freeze the protocol/code before the full run and preserve either outcome.
+The earlier A/C0/P results remain immutable. Publication authorization from the
+prior explicit push/PR approval persists for this continuation; do not merge.
+
+## 2026-10-19 authorization: Gate P return-pulse assay
+
+The user explicitly approved adding the return-pulse test to this repository.
+Gate P is separate from the frozen A/C0 results. Its scope is specified in
+`docs/gate_p_protocol.md`: exact 19-sample soma interrogation, explicit blackout
+latency, a declared synthetic local voltage-to-conductance gate, matched
+active-no-pulse and fixed-cable controls, held-out x forecasting, and reset/
+independent-label controls. Preserve failed results and do not retune after the
+full held-out run. No synapse, new image model, or additional repository is
+authorized by this task. The historical C0-only restriction below is superseded
+only for this explicitly requested assay. Do not merge automatically.
+
 ## Current authorization and frozen results
 
 Gate A is complete, merged to `main`, and frozen as a negative result.
